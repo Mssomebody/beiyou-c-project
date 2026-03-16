@@ -15,10 +15,12 @@
 │   ├── 2026-03-15_day1.md
 │   └── 2026-03-16_day2-8.md    # Day 2-8整合（LSTM+FedAvg+GCN+GAT）
 ├── fl_data/                     # 联邦学习数据集（5站点Non-IID）
+│   └── global_test/             # 全局测试集
 ├── data/                        # 原始数据
 ├── planetoid/                   # Cora数据集
 ├── best_gat_config.json         # 最佳GAT配置
 ├── best_gat_model.pth           # 最佳GAT模型权重
+├── requirements.txt             # 依赖清单
 ├── day1_mlp.py                  # NumPy手动实现MLP
 ├── day1_mlp_pytorch.py          # PyTorch实现MLP
 ├── day1_training_curves.png
@@ -37,6 +39,11 @@
 ├── day6_gnn_results.png
 ├── day7_gat_cora.py             # GAT图注意力网络
 ├── day7_gat_results.png
+├── day8_gat_tuning.py           # GAT参数调优
+├── day8_gat_tuning.png          # 调优结果可视化
+├── base_station_data_10stations_30days.csv
+├── station_0_single.csv
+├── test_day1.py
 └── README.md                    # 本文档
 ```
 
@@ -82,7 +89,7 @@
 ## 🚀 快速开始
 ```bash
 # 安装依赖
-pip install numpy pandas matplotlib torch scikit-learn plotly streamlit torch-geometric
+pip install -r requirements.txt
 
 # 生成联邦数据
 python day3_multivariate_fl_data.py
@@ -98,6 +105,9 @@ python day6_gnn_cora.py
 
 # GAT图注意力网络
 python day7_gat_cora.py
+
+# GAT参数调优（54组实验）
+python day8_gat_tuning.py
 ```
 
 ## 📈 训练曲线
@@ -113,14 +123,19 @@ python day7_gat_cora.py
 ![GAT训练结果](day7_gat_results.png)
 *GAT默认参数，测试准确率82.4% (+2.5%)*
 
+### GAT参数调优
+![GAT调优结果](day8_gat_tuning.png)
+*54组参数网格搜索，最佳84.2% (+4.3% vs GCN)*
+
 ## 💾 已保存的关键文件
 - `best_gat_config.json` - 最佳参数配置
 - `best_gat_model.pth` - 最佳模型权重
 - `day7_gat_results.png` - GAT训练结果
+- `day8_gat_tuning.png` - 调优结果可视化
 - 54组实验结果已记录在日志中
 
 ## 📝 待办
-- [ ] 运行Day 8代码生成调优结果 (`day8_gat_tuning.py`)
+- [x] 运行Day 8代码生成调优结果 (`day8_gat_tuning.png` 已生成)
 - [ ] 撰写CSDN文章：GAT参数调优实战
 - [ ] 整理论文素材
 - [ ] Phase 3继续：图同构网络(GIN)
