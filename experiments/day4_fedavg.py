@@ -193,11 +193,11 @@ def main():
     plt.grid(True)
     
     # 保存模型
-    torch.save(global_model.state_dict(), 'best_fedavg_barcelona.pth')
+     torch.save(global_model.state_dict(), 'checkpoints/best_fedavg_barcelona.pth')
     print(f"\n✅ 训练完成！模型已保存为 best_fedavg_barcelona.pth")
     
     # 保存图片
-    plt.savefig('day4_fedavg_barcelona_results.png', dpi=150, bbox_inches='tight')
+    plt.savefig('results/day4_fedavg_barcelona_results.png', dpi=150, bbox_inches='tight')
     print("📊 结果图片已保存: day4_fedavg_barcelona_results.png")
     plt.show()
 

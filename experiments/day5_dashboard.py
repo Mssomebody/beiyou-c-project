@@ -195,7 +195,7 @@ if mode == "📊 数据看板":
     with col_right:
         st.markdown("### 📊 Non-IID分布")
         if os.path.exists('day3_non_iid_distribution.png'):
-            st.image('day3_non_iid_distribution.png', use_container_width=True)
+            st.image('results/day3_non_iid_distribution.png', use_container_width=True)
         else:
             st.info("运行 day3_multivariate_fl_data.py 生成分布图")
     

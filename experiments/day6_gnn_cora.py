@@ -154,7 +154,7 @@ ax2.grid(True, alpha=0.3)
 ax2.legend()
 
 plt.tight_layout()
-plt.savefig('day6_gnn_results.png', dpi=150)
+plt.savefig('results/day6_gnn_results.png', dpi=150)
 plt.show()
 
 print("\n结果图已保存: day6_gnn_results.png")
@@ -186,9 +186,9 @@ def visualize_embedding(hidden_channels=16):
     plt.title('t-SNE Visualization of Node Embeddings')
     plt.xlabel('t-SNE Dimension 1')
     plt.ylabel('t-SNE Dimension 2')
-    plt.savefig('day6_node_embeddings.png', dpi=150)
+    plt.savefig('results/day6_node_embeddings.png', dpi=150)
     plt.show()
-    print("节点嵌入图已保存: day6_node_embeddings.png")
+    print("节点嵌入图已保存: results/day6_node_embeddings.png")
 
 # 如果想看嵌入可视化，取消下面的注释
 # visualize_embedding()

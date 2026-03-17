@@ -195,7 +195,7 @@ ax.legend()
 ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('day3_non_iid_distribution.png', dpi=150)
+plt.savefig('results/day3_non_iid_distribution.png', dpi=150)
 print("\nNon-IID分布图已保存: day3_non_iid_distribution.png")
 plt.show()
 
