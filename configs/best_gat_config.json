@@ -1,0 +1,10 @@
+{
+    "hidden_channels": 8,
+    "heads": 1,
+    "dropout": 0.8,
+    "lr": 0.005,
+    "val_acc": 0.822,
+    "test_acc": 0.842,
+    "best_epoch": 168,
+    "time": 3.76020884513855
+}

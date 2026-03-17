@@ -8,3 +8,6 @@ streamlit>=1.10.0
 torch-geometric>=2.0.0
 torch-scatter
 torch-sparse
+tqdm
+seaborn
+openpyxl
