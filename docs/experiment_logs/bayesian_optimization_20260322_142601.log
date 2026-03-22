@@ -1,0 +1,38 @@
+2026-03-22 14:26:01,976 - INFO - 日志文件: D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\experiments\logs\bayesian_optimization_20260322_142601.log
+2026-03-22 14:26:01,977 - INFO - Version root: D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector
+2026-03-22 14:26:08,109 - INFO - ======================================================================
+2026-03-22 14:26:08,109 - INFO - 贝叶斯优化 - 专业版
+2026-03-22 14:26:08,110 - INFO - ======================================================================
+2026-03-22 14:26:08,110 - INFO - 搜索参数: hidden, layers, lr, dropout, batch_size, optimizer, scheduler, grad_clip
+2026-03-22 14:26:08,110 - INFO - 优化目标: 验证集损失 (MSE)
+2026-03-22 14:26:08,111 - INFO - 早停: 自适应（从 Step 2 读取）
+2026-03-22 14:26:08,112 - INFO - ======================================================================
+2026-03-22 14:26:08,114 - INFO - ✅ 使用 Step 2 早停参数: min_epochs=10, confidence=0.95
+2026-03-22 14:26:08,116 - INFO - 
+日志目录: D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\experiments\beautified\..\logs\bayesian\20260322_142608
+2026-03-22 14:26:09,240 - INFO - 
+开始优化...
+2026-03-22 14:26:09,240 - INFO - 预计时间: 20 次 × 5-10 分钟 = 1.5-3 小时
+2026-03-22 14:26:09,241 - INFO - ----------------------------------------------------------------------
+2026-03-22 14:26:09,378 - INFO - 
+  Trial: h=32, l=2, lr=2.79e-03, drop=0.45, bs=128, opt=Adam, sched=cosine, clip=0.24
+2026-03-22 14:26:09,395 - INFO - Traceback (most recent call last):
+
+2026-03-22 14:26:09,396 - INFO -   File "D:\DownLoad\python\Lib\site-packages\optuna\study\_optimize.py", line 206, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+
+2026-03-22 14:26:09,397 - INFO -   File "D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\experiments\beautified\bayes_pro.py", line 168, in objective
+    train_loader, val_loader, test_loader, scaler = get_loaders(8001, bs)
+                                                    ^^^^^^^^^^^^^^^^^^^^^
+
+2026-03-22 14:26:09,397 - INFO -   File "D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\experiments\beautified\bayes_pro.py", line 90, in get_loaders
+    train_loader, scaler_path, _ = get_node_data_loader(
+                                   ^^^^^^^^^^^^^^^^^^^^^
+
+2026-03-22 14:26:09,398 - INFO -   File "D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\src\data_loader\barcelona_dataset_v1.py", line 103, in get_node_data_loader
+    raise FileNotFoundError(f"文件不存在: {file_path}")
+
+2026-03-22 14:26:09,398 - INFO - FileNotFoundError: 文件不存在: D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\data\processed\barcelona_ready_v1\node_8001\train.pkl
+
+2026-03-22 14:26:09,401 - ERROR - Optimization failed: 文件不存在: D:\Desk\desk\beiyou_c_project\versions\v2_holiday_sector\data\processed\barcelona_ready_v1\node_8001\train.pkl

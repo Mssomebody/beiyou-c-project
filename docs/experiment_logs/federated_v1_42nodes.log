@@ -1,0 +1,5 @@
+nohup: ignoring input
+Traceback (most recent call last):
+  File "D:\Desk\desk\beiyou_c_project\experiments\beautified\train_federated.py", line 315, in <module>
+    print(f"\u2705 Loaded config from: {args.config}")
+UnicodeEncodeError: 'gbk' codec can't encode character '\u2705' in position 0: illegal multibyte sequence

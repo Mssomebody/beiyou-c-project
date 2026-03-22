@@ -1,0 +1,360 @@
+nohup: ignoring input
+2026-03-22 14:56:55,871 - INFO - 日志文件: D:\Desk\desk\beiyou_c_project\experiments\logs\train_federated_20260322_145655.log
+2026-03-22 14:56:59,374 - INFO - ============================================================
+2026-03-22 14:56:59,375 - INFO - FedGreen-C Federated Learning Training Started
+2026-03-22 14:56:59,375 - INFO - ============================================================
+2026-03-22 14:56:59,376 - INFO - Loaded config from: configs/federated_config.json
+2026-03-22 14:56:59,378 - INFO - ============================================================
+2026-03-22 14:56:59,378 - INFO - FedGreen-C Federated Learning Training
+2026-03-22 14:56:59,378 - INFO - ============================================================
+2026-03-22 14:56:59,379 - INFO - Configuration:
+2026-03-22 14:56:59,379 - INFO -   Nodes: [8001, 8002, 8003] (3 nodes)
+2026-03-22 14:56:59,379 - INFO -   Rounds: 10
+2026-03-22 14:56:59,379 - INFO -   Local epochs: 5
+2026-03-22 14:56:59,379 - INFO -   Mu values: [0.0, 0.01]
+2026-03-22 14:56:59,380 - INFO -   Window: 28 → 4
+2026-03-22 14:56:59,380 - INFO -   Device: cpu
+2026-03-22 14:56:59,380 - INFO - ============================================================
+2026-03-22 14:56:59,380 - INFO - 
+Loading data...
+2026-03-22 14:56:59,568 - INFO - Node 8001: train=21187, val=4515, test=4517
+2026-03-22 14:56:59,587 - INFO - Node 8002: train=21190, val=4516, test=4517
+2026-03-22 14:56:59,605 - INFO - Node 8003: train=21201, val=4518, test=4520
+2026-03-22 14:56:59,615 - INFO - Input dimension: 7
+2026-03-22 14:56:59,615 - INFO - 
+############################################################
+2026-03-22 14:56:59,615 - INFO - Training with mu = 0.0
+2026-03-22 14:56:59,615 - INFO - ############################################################
+2026-03-22 14:56:59,620 - INFO - 
+Starting federated training...
+2026-03-22 14:56:59,620 - INFO - 
+  Round 1/10
+2026-03-22 15:00:41,324 - INFO -     Client 8001: loss = 0.005688, size = 21187
+2026-03-22 15:04:14,553 - INFO -     Client 8002: loss = 0.006018, size = 21190
+2026-03-22 15:07:48,197 - INFO -     Client 8003: loss = 0.006518, size = 21201
+2026-03-22 15:07:48,199 - INFO -     Avg Loss = 0.006075
+2026-03-22 15:07:48,200 - INFO - 
+  Round 2/10
+2026-03-22 15:11:29,894 - INFO -     Client 8001: loss = 0.005249, size = 21187
+2026-03-22 15:15:04,884 - INFO -     Client 8002: loss = 0.005313, size = 21190
+2026-03-22 15:18:51,591 - INFO -     Client 8003: loss = 0.005952, size = 21201
+2026-03-22 15:18:51,593 - INFO -     Avg Loss = 0.005505
+2026-03-22 15:18:51,593 - INFO - 
+  Round 3/10
+2026-03-22 15:22:30,005 - INFO -     Client 8001: loss = 0.004674, size = 21187
+2026-03-22 15:25:48,953 - INFO -     Client 8002: loss = 0.004402, size = 21190
+2026-03-22 15:29:08,646 - INFO -     Client 8003: loss = 0.005260, size = 21201
+2026-03-22 15:29:08,648 - INFO -     Avg Loss = 0.004779
+2026-03-22 15:29:08,649 - INFO - 
+  Round 4/10
+2026-03-22 15:32:24,765 - INFO -     Client 8001: loss = 0.003996, size = 21187
+2026-03-22 15:35:47,488 - INFO -     Client 8002: loss = 0.003673, size = 21190
+2026-03-22 15:39:11,669 - INFO -     Client 8003: loss = 0.004386, size = 21201
+2026-03-22 15:39:11,671 - INFO -     Avg Loss = 0.004018
+2026-03-22 15:39:11,671 - INFO - 
+  Round 5/10
+2026-03-22 15:42:36,485 - INFO -     Client 8001: loss = 0.003397, size = 21187
+2026-03-22 15:46:32,710 - INFO -     Client 8002: loss = 0.003185, size = 21190
+2026-03-22 15:50:18,128 - INFO -     Client 8003: loss = 0.003823, size = 21201
+2026-03-22 15:50:18,130 - INFO -     Avg Loss = 0.003468
+2026-03-22 15:50:25,593 - INFO -     Test Loss = 0.005216
+2026-03-22 15:50:25,593 - INFO - 
+  Round 6/10
+2026-03-22 15:54:32,110 - INFO -     Client 8001: loss = 0.003056, size = 21187
+2026-03-22 15:59:08,194 - INFO -     Client 8002: loss = 0.002854, size = 21190
+2026-03-22 16:03:21,820 - INFO -     Client 8003: loss = 0.003345, size = 21201
+2026-03-22 16:03:21,823 - INFO -     Avg Loss = 0.003085
+2026-03-22 16:03:21,823 - INFO - 
+  Round 7/10
+2026-03-22 16:07:39,922 - INFO -     Client 8001: loss = 0.002698, size = 21187
+2026-03-22 16:11:52,074 - INFO -     Client 8002: loss = 0.002511, size = 21190
+2026-03-22 16:16:47,132 - INFO -     Client 8003: loss = 0.002976, size = 21201
+2026-03-22 16:16:47,134 - INFO -     Avg Loss = 0.002728
+2026-03-22 16:16:47,134 - INFO - 
+  Round 8/10
+2026-03-22 16:23:19,264 - INFO -     Client 8001: loss = 0.002364, size = 21187
+2026-03-22 16:30:22,564 - INFO -     Client 8002: loss = 0.002287, size = 21190
+2026-03-22 16:35:21,200 - INFO -     Client 8003: loss = 0.002634, size = 21201
+2026-03-22 16:35:21,202 - INFO -     Avg Loss = 0.002428
+2026-03-22 16:35:21,202 - INFO - 
+  Round 9/10
+2026-03-22 16:39:33,994 - INFO -     Client 8001: loss = 0.002147, size = 21187
+2026-03-22 16:43:50,934 - INFO -     Client 8002: loss = 0.001961, size = 21190
+2026-03-22 16:47:25,322 - INFO -     Client 8003: loss = 0.002334, size = 21201
+2026-03-22 16:47:25,323 - INFO -     Avg Loss = 0.002147
+2026-03-22 16:47:25,324 - INFO - 
+  Round 10/10
+2026-03-22 16:50:52,415 - INFO -     Client 8001: loss = 0.001931, size = 21187
+2026-03-22 16:54:21,503 - INFO -     Client 8002: loss = 0.001723, size = 21190
+2026-03-22 16:57:37,337 - INFO -     Client 8003: loss = 0.002122, size = 21201
+2026-03-22 16:57:37,338 - INFO -     Avg Loss = 0.001926
+2026-03-22 16:57:44,623 - INFO -     Test Loss = 0.004619
+2026-03-22 16:57:52,651 - INFO - 
+Final Test Loss: 0.004619
+2026-03-22 16:57:53,343 - INFO - ✅ Loss curve saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.0_loss_20260322_165752.png
+2026-03-22 16:59:22,103 - INFO - ✅ Checkpoint saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.0_model_20260322_165752.pth
+2026-03-22 16:59:22,104 - INFO - ✅ Results saved for mu=0.0
+2026-03-22 16:59:22,104 - INFO - 
+############################################################
+2026-03-22 16:59:22,104 - INFO - Training with mu = 0.01
+2026-03-22 16:59:22,104 - INFO - ############################################################
+2026-03-22 16:59:22,112 - INFO - 
+Starting federated training...
+2026-03-22 16:59:22,113 - INFO - 
+  Round 1/10
+2026-03-22 17:02:41,045 - INFO -     Client 8001: loss = 0.022164, size = 21187
+2026-03-22 17:05:43,914 - INFO -     Client 8002: loss = 0.022336, size = 21190
+2026-03-22 17:08:54,974 - INFO -     Client 8003: loss = 0.026492, size = 21201
+2026-03-22 17:08:54,975 - INFO -     Avg Loss = 0.023664
+2026-03-22 17:08:54,976 - INFO - 
+  Round 2/10
+2026-03-22 17:12:03,892 - INFO -     Client 8001: loss = 0.019697, size = 21187
+2026-03-22 17:15:17,100 - INFO -     Client 8002: loss = 0.020204, size = 21190
+2026-03-22 17:18:27,711 - INFO -     Client 8003: loss = 0.023704, size = 21201
+2026-03-22 17:18:27,712 - INFO -     Avg Loss = 0.021202
+2026-03-22 17:18:27,712 - INFO - 
+  Round 3/10
+2026-03-22 17:21:52,605 - INFO -     Client 8001: loss = 0.019277, size = 21187
+2026-03-22 17:24:57,570 - INFO -     Client 8002: loss = 0.020017, size = 21190
+2026-03-22 17:28:01,804 - INFO -     Client 8003: loss = 0.023077, size = 21201
+2026-03-22 17:28:01,806 - INFO -     Avg Loss = 0.020790
+2026-03-22 17:28:01,806 - INFO - 
+  Round 4/10
+2026-03-22 17:31:09,009 - INFO -     Client 8001: loss = 0.019060, size = 21187
+2026-03-22 17:34:19,097 - INFO -     Client 8002: loss = 0.019747, size = 21190
+2026-03-22 17:37:36,405 - INFO -     Client 8003: loss = 0.022810, size = 21201
+2026-03-22 17:37:36,408 - INFO -     Avg Loss = 0.020539
+2026-03-22 17:37:36,408 - INFO - 
+  Round 5/10
+2026-03-22 17:40:56,970 - INFO -     Client 8001: loss = 0.018771, size = 21187
+2026-03-22 17:44:21,437 - INFO -     Client 8002: loss = 0.019489, size = 21190
+2026-03-22 17:48:03,424 - INFO -     Client 8003: loss = 0.022369, size = 21201
+2026-03-22 17:48:03,426 - INFO -     Avg Loss = 0.020210
+2026-03-22 17:48:09,743 - INFO -     Test Loss = 0.016447
+2026-03-22 17:48:09,743 - INFO - 
+  Round 6/10
+2026-03-22 17:51:54,744 - INFO -     Client 8001: loss = 0.018237, size = 21187
+2026-03-22 17:55:55,389 - INFO -     Client 8002: loss = 0.019038, size = 21190
+2026-03-22 17:59:08,399 - INFO -     Client 8003: loss = 0.021685, size = 21201
+2026-03-22 17:59:08,401 - INFO -     Avg Loss = 0.019653
+2026-03-22 17:59:08,401 - INFO - 
+  Round 7/10
+2026-03-22 18:01:29,274 - INFO -     Client 8001: loss = 0.017388, size = 21187
+2026-03-22 18:04:50,713 - INFO -     Client 8002: loss = 0.018183, size = 21190
+2026-03-22 18:08:52,647 - INFO -     Client 8003: loss = 0.020419, size = 21201
+2026-03-22 18:08:52,649 - INFO -     Avg Loss = 0.018663
+2026-03-22 18:08:52,650 - INFO - 
+  Round 8/10
+2026-03-22 18:12:54,731 - INFO -     Client 8001: loss = 0.016314, size = 21187
+2026-03-22 18:16:53,121 - INFO -     Client 8002: loss = 0.017144, size = 21190
+2026-03-22 18:20:41,544 - INFO -     Client 8003: loss = 0.018775, size = 21201
+2026-03-22 18:20:41,547 - INFO -     Avg Loss = 0.017411
+2026-03-22 18:20:41,547 - INFO - 
+  Round 9/10
+2026-03-22 18:24:23,815 - INFO -     Client 8001: loss = 0.015277, size = 21187
+2026-03-22 18:28:12,524 - INFO -     Client 8002: loss = 0.016161, size = 21190
+2026-03-22 18:32:21,866 - INFO -     Client 8003: loss = 0.017431, size = 21201
+2026-03-22 18:32:21,868 - INFO -     Avg Loss = 0.016290
+2026-03-22 18:32:21,868 - INFO - 
+  Round 10/10
+2026-03-22 18:35:03,950 - INFO -     Client 8001: loss = 0.014408, size = 21187
+2026-03-22 18:37:39,768 - INFO -     Client 8002: loss = 0.015256, size = 21190
+2026-03-22 18:40:16,024 - INFO -     Client 8003: loss = 0.016321, size = 21201
+2026-03-22 18:40:16,026 - INFO -     Avg Loss = 0.015328
+2026-03-22 18:40:22,300 - INFO -     Test Loss = 0.013600
+2026-03-22 18:40:27,347 - INFO - 
+Final Test Loss: 0.013600
+2026-03-22 18:40:27,927 - INFO - ✅ Loss curve saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.01_loss_20260322_184027.png
+2026-03-22 18:40:43,511 - INFO - ✅ Checkpoint saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.01_model_20260322_184027.pth
+2026-03-22 18:40:43,511 - INFO - ✅ Results saved for mu=0.01
+2026-03-22 18:40:43,512 - INFO - 
+============================================================
+2026-03-22 18:40:43,512 - INFO - Generating comparison plot...
+2026-03-22 18:40:43,512 - INFO - ============================================================
+2026-03-22 18:40:44,107 - INFO - ✅ Comparison plot saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_comparison_20260322_184043.png
+2026-03-22 18:41:09,367 - INFO - 
+============================================================
+2026-03-22 18:41:09,367 - INFO - All training complete!
+2026-03-22 18:41:09,367 - INFO - ============================================================
+2026-03-22 18:41:09,367 - INFO - 
+Summary:
+2026-03-22 18:41:09,367 - INFO -   mu = 0.0: Final Test Loss = 0.004619
+2026-03-22 18:41:09,367 - INFO -   mu = 0.01: Final Test Loss = 0.013600
+2026-03-22 18:41:09,367 - INFO - Training completed successfully
+2026-03-22 18:41:09,370 - INFO - Training completed successfully
+============================================================
+FedGreen-C Federated Learning Training
+============================================================
+Configuration:
+  Nodes: [8001, 8002, 8003] (3 nodes)
+  Rounds: 10
+  Local epochs: 5
+  Mu values: [0.0, 0.01]
+  Window: 28 → 4
+  Device: cpu
+============================================================
+
+Loading data...
+Node 8001: train=21187, val=4515, test=4517
+Node 8002: train=21190, val=4516, test=4517
+Node 8003: train=21201, val=4518, test=4520
+Input dimension: 7
+
+############################################################
+Training with mu = 0.0
+############################################################
+
+Starting federated training...
+
+  Round 1/10
+    Client 8001: loss = 0.005688, size = 21187
+    Client 8002: loss = 0.006018, size = 21190
+    Client 8003: loss = 0.006518, size = 21201
+    Avg Loss = 0.006075
+
+  Round 2/10
+    Client 8001: loss = 0.005249, size = 21187
+    Client 8002: loss = 0.005313, size = 21190
+    Client 8003: loss = 0.005952, size = 21201
+    Avg Loss = 0.005505
+
+  Round 3/10
+    Client 8001: loss = 0.004674, size = 21187
+    Client 8002: loss = 0.004402, size = 21190
+    Client 8003: loss = 0.005260, size = 21201
+    Avg Loss = 0.004779
+
+  Round 4/10
+    Client 8001: loss = 0.003996, size = 21187
+    Client 8002: loss = 0.003673, size = 21190
+    Client 8003: loss = 0.004386, size = 21201
+    Avg Loss = 0.004018
+
+  Round 5/10
+    Client 8001: loss = 0.003397, size = 21187
+    Client 8002: loss = 0.003185, size = 21190
+    Client 8003: loss = 0.003823, size = 21201
+    Avg Loss = 0.003468
+    Test Loss = 0.005216
+
+  Round 6/10
+    Client 8001: loss = 0.003056, size = 21187
+    Client 8002: loss = 0.002854, size = 21190
+    Client 8003: loss = 0.003345, size = 21201
+    Avg Loss = 0.003085
+
+  Round 7/10
+    Client 8001: loss = 0.002698, size = 21187
+    Client 8002: loss = 0.002511, size = 21190
+    Client 8003: loss = 0.002976, size = 21201
+    Avg Loss = 0.002728
+
+  Round 8/10
+    Client 8001: loss = 0.002364, size = 21187
+    Client 8002: loss = 0.002287, size = 21190
+    Client 8003: loss = 0.002634, size = 21201
+    Avg Loss = 0.002428
+
+  Round 9/10
+    Client 8001: loss = 0.002147, size = 21187
+    Client 8002: loss = 0.001961, size = 21190
+    Client 8003: loss = 0.002334, size = 21201
+    Avg Loss = 0.002147
+
+  Round 10/10
+    Client 8001: loss = 0.001931, size = 21187
+    Client 8002: loss = 0.001723, size = 21190
+    Client 8003: loss = 0.002122, size = 21201
+    Avg Loss = 0.001926
+    Test Loss = 0.004619
+
+Final Test Loss: 0.004619
+✅ Loss curve saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.0_loss_20260322_165752.png
+✅ Checkpoint saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.0_model_20260322_165752.pth
+✅ Results saved for mu=0.0
+
+############################################################
+Training with mu = 0.01
+############################################################
+
+Starting federated training...
+
+  Round 1/10
+    Client 8001: loss = 0.022164, size = 21187
+    Client 8002: loss = 0.022336, size = 21190
+    Client 8003: loss = 0.026492, size = 21201
+    Avg Loss = 0.023664
+
+  Round 2/10
+    Client 8001: loss = 0.019697, size = 21187
+    Client 8002: loss = 0.020204, size = 21190
+    Client 8003: loss = 0.023704, size = 21201
+    Avg Loss = 0.021202
+
+  Round 3/10
+    Client 8001: loss = 0.019277, size = 21187
+    Client 8002: loss = 0.020017, size = 21190
+    Client 8003: loss = 0.023077, size = 21201
+    Avg Loss = 0.020790
+
+  Round 4/10
+    Client 8001: loss = 0.019060, size = 21187
+    Client 8002: loss = 0.019747, size = 21190
+    Client 8003: loss = 0.022810, size = 21201
+    Avg Loss = 0.020539
+
+  Round 5/10
+    Client 8001: loss = 0.018771, size = 21187
+    Client 8002: loss = 0.019489, size = 21190
+    Client 8003: loss = 0.022369, size = 21201
+    Avg Loss = 0.020210
+    Test Loss = 0.016447
+
+  Round 6/10
+    Client 8001: loss = 0.018237, size = 21187
+    Client 8002: loss = 0.019038, size = 21190
+    Client 8003: loss = 0.021685, size = 21201
+    Avg Loss = 0.019653
+
+  Round 7/10
+    Client 8001: loss = 0.017388, size = 21187
+    Client 8002: loss = 0.018183, size = 21190
+    Client 8003: loss = 0.020419, size = 21201
+    Avg Loss = 0.018663
+
+  Round 8/10
+    Client 8001: loss = 0.016314, size = 21187
+    Client 8002: loss = 0.017144, size = 21190
+    Client 8003: loss = 0.018775, size = 21201
+    Avg Loss = 0.017411
+
+  Round 9/10
+    Client 8001: loss = 0.015277, size = 21187
+    Client 8002: loss = 0.016161, size = 21190
+    Client 8003: loss = 0.017431, size = 21201
+    Avg Loss = 0.016290
+
+  Round 10/10
+    Client 8001: loss = 0.014408, size = 21187
+    Client 8002: loss = 0.015256, size = 21190
+    Client 8003: loss = 0.016321, size = 21201
+    Avg Loss = 0.015328
+    Test Loss = 0.013600
+
+Final Test Loss: 0.013600
+✅ Loss curve saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.01_loss_20260322_184027.png
+✅ Checkpoint saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_nodes3_rounds10_mu0.01_model_20260322_184027.pth
+✅ Results saved for mu=0.01
+
+============================================================
+Generating comparison plot...
+============================================================
+✅ Comparison plot saved: D:\Desk\desk\beiyou_c_project\results/beautified\federated_comparison_20260322_184043.png
+
+============================================================
+All training complete!
+============================================================
+
+Summary:
+  mu = 0.0: Final Test Loss = 0.004619
+  mu = 0.01: Final Test Loss = 0.013600

@@ -1,0 +1,64 @@
+# ============================================================
+# FedGreen-C 优化配置模板
+# ============================================================
+
+# v3: 周期性编码
+cyclical:
+  enable: true
+  hour_period: 24
+  day_period: 7
+  month_period: 12
+  hour_col: hour_code
+  day_col: null  # 从 Data 自动提取
+  month_col: month
+  auto_detect: true
+
+# v4: 注意力机制
+attention:
+  enable: true
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.3
+  bidirectional: true
+  attention_type: self  # none, self, multihead
+  num_heads: 4
+  use_residual: true
+  use_layer_norm: true
+
+# v5: 天气数据（已下载）
+weather:
+  enable: true
+  source: file
+  data_path: data/raw/weather/barcelona_weather_6h.csv
+  lag_days: [1, 2, 3]
+  rolling_windows: [7, 14, 28]
+  use_interaction: true
+
+# v6: 个性化联邦学习
+personalized_fed:
+  enable: false
+  base_mu: 0.01
+  min_mu: 0.001
+  max_mu: 0.1
+  threshold: 1.2
+  adaptive_mu: true
+  personal_layers: ['fc']
+
+# v7: 模型集成
+ensemble:
+  enable: false
+  method: weighted  # weighted, stacking
+  base_models: ['lstm', 'xgboost']
+  meta_model: random_forest  # random_forest, linear
+  weights: null  # 自动优化或手动指定
+
+# 训练配置
+training:
+  batch_size: 48
+  epochs: 20
+  lr: 0.002
+  dropout: 0.45
+  hidden_dim: 192
+  num_layers: 2
+  percentile: 15
+  use_v1_features: true
