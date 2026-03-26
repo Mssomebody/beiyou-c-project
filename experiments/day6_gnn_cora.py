@@ -1,3 +1,11 @@
+import time
+timestamp = time.strftime("%Y%m%d_%H%M%S")
+import time
+timestamp = time.strftime("%Y%m%d_%H%M%S")
+import time
+timestamp = time.strftime("%Y%m%d_%H%M%S")
+import time
+timestamp = time.strftime("%Y%m%d_%H%M%S")
 # day6_gnn_cora.py
 # Phase 3 Day 1: 图神经网络基础 - Cora论文分类
 
@@ -153,11 +161,10 @@ ax2.set_title('GCN Accuracy')
 ax2.grid(True, alpha=0.3)
 ax2.legend()
 
+print(f"结果图已保存: results/beautified/day6_gnn_results_{timestamp}.png")
 plt.tight_layout()
-plt.savefig('results/day6_gnn_results.png', dpi=150)
+plt.savefig(f"results/beautified/day6_gnn_results_{timestamp}.png", dpi=150)
 plt.show()
-
-print("\n结果图已保存: day6_gnn_results.png")
 
 # ============ 8. 可视化节点嵌入（可选） ============
 
@@ -186,13 +193,10 @@ def visualize_embedding(hidden_channels=16):
     plt.title('t-SNE Visualization of Node Embeddings')
     plt.xlabel('t-SNE Dimension 1')
     plt.ylabel('t-SNE Dimension 2')
-    plt.savefig('results/day6_node_embeddings.png', dpi=150)
-    plt.show()
-    print("节点嵌入图已保存: results/day6_node_embeddings.png")
+    print("节点嵌入图已保存: results/beautified/day6_node_embeddings_{timestamp}.png")
 
 # 如果想看嵌入可视化，取消下面的注释
 # visualize_embedding()
-
 print("\n" + "=" * 50)
 print("Day 6 完成！下一步: GCN/GAT实现")
 print("=" * 50)

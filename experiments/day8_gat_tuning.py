@@ -339,7 +339,11 @@ ax6.set_title('Distribution of Results')
 ax6.legend()
 
 plt.tight_layout()
-plt.savefig('day8_gat_tuning.png', dpi=150)
+    import time
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    import time
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+plt.savefig(f"results/beautified/day8_gat_tuning_{timestamp}.png", dpi=150)
 plt.show()
 
 print("\n结果图已保存: day8_gat_tuning.png")

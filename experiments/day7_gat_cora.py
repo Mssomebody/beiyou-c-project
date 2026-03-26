@@ -1,3 +1,5 @@
+import time
+timestamp = time.strftime("%Y%m%d_%H%M%S")
 # day7_gat_cora.py
 # Phase 3 Day 2: 图注意力网络(GAT)实现 - Cora论文分类
 
@@ -139,7 +141,7 @@ for epoch in range(1, 201):
         best_val_acc = val_acc
         best_test_acc = test_acc
         best_epoch = epoch
-        torch.save(model.state_dict(), 'best_gat_model.pth')
+        torch.save(model.state_dict(), "checkpoints/best_gat_model.pth")
     
     if epoch % 20 == 0:
         print(f'Epoch {epoch:03d}, Loss: {loss:.4f}, '
@@ -154,7 +156,7 @@ print("训练完成！")
 print("=" * 50)
 
 # 加载最佳模型
-model.load_state_dict(torch.load('best_gat_model.pth'))
+model.load_state_dict(torch.load("checkpoints/best_gat_model.pth"))
 train_acc, val_acc, test_acc = test()
 
 print(f'训练时间: {end_time - start_time:.2f}秒')
@@ -228,10 +230,11 @@ ax4.set_title('Effect of Attention Heads (Illustrative)')
 ax4.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('day7_gat_results.png', dpi=150)
+plt.savefig('results/beautified/day7_gat_results_{timestamp}.png', dpi=150)
+print(f"结果图已保存: results/beautified/day7_gat_results_{timestamp}.png")
 plt.show()
 
-print("\n结果图已保存: day7_gat_results.png")
+print("\n结果图已保存: results/beautified/{timestamp}.png")
 
 # ============ 9. 可视化注意力权重（可选） ============
 
@@ -274,9 +277,9 @@ def visualize_attention():
                                 edge_color=edge_colors, edge_cmap=plt.cm.Reds, width=2)
         plt.title('Attention Weights Visualization')
         plt.axis('off')
-        plt.savefig('day7_attention_weights.png', dpi=150)
+        plt.savefig('results/beautified/day7_attention_weights_{timestamp}.png', dpi=150)
         plt.show()
-        print("注意力权重图已保存: day7_attention_weights.png")
+        print("注意力权重图已保存: results/beautified/day7_attention_weights_{timestamp}.png")
 
 # 取消注释查看注意力可视化
 # visualize_attention()

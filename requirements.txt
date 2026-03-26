@@ -117,3 +117,22 @@ tenacity==9.1.4
 typing_extensions==4.15.0
 xyzservices==2025.11.0
 yarl==1.23.0
+
+# 可解释性分析
+shap==0.51.0
+slicer==0.0.8
+numba==0.64.0
+cloudpickle==3.1.2
+llvmlite==0.46.0
+
+# TensorFlow (用于 SHAP DeepExplainer)
+tensorflow-cpu==2.21.0
+grpcio==1.78.0
+h5py==3.14.0
+keras==3.13.2
+ml_dtypes==0.5.4
+opt_einsum==3.4.0
+gast==0.7.0
+libclang==18.1.1
+wrapt==2.1.2
+termcolor==3.3.0

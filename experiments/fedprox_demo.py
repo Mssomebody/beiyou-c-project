@@ -16,7 +16,9 @@ import sys
 import os
 
 # 添加项目根目录到路径
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+sys.path.append(project_root)
 from src.data_loader.barcelona_loader import BarcelonaEnergyLoader
 
 # ============= 设备配置 =============
@@ -67,7 +69,7 @@ class FedProxClient:
         )
         self.proximal_weight = proximal_weight
         
-    def train(self, global_model, epochs=5, lr=0.01):
+    def train(self, global_model, epochs=2, lr=0.01):
         """
         FedProx 训练：在普通损失上加 proximal term
         """
@@ -134,7 +136,7 @@ def fed_avg(global_model, client_models):
     return global_model
 
 # ============= 对比实验：不同 proximal_weight 的效果 =============
-def run_fedprox_experiment(proximal_weight, clients, num_rounds=30):
+def run_fedprox_experiment(proximal_weight, clients, num_rounds=3):
     """运行一次 FedProx 实验"""
     print(f"\n🔬 测试 proximal_weight = {proximal_weight}")
     
@@ -178,7 +180,7 @@ def main():
     # 1. 加载真实数据
     print("\n📊 加载巴塞罗那能耗数据...")
     loader = BarcelonaEnergyLoader(
-        data_path="data/processed",
+        data_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed"),
         years=['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
         num_nodes=5,  # 用5个节点测试
         seq_length=24,
@@ -213,41 +215,51 @@ def main():
         for client in base_clients:
             client.proximal_weight = w
         
-        train_losses, test_losses = run_fedprox_experiment(w, base_clients, num_rounds=30)
+        train_losses, test_losses = run_fedprox_experiment(w, base_clients, num_rounds=3)
         results[w] = {
             'train': train_losses,
             'test': test_losses
         }
     
     # 4. 绘制对比图
-    plt.figure(figsize=(14, 6))
+    plt.style.use('seaborn-v0_8-darkgrid')
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    fig.patch.set_facecolor('#f5f5f5')
     
-    # 训练损失对比
-    plt.subplot(1, 2, 1)
+    # 左图：训练损失对比
+    ax1.set_facecolor('#ffffff')
     for w in weights:
         label = f'μ={w}' + (" (FedAvg)" if w == 0 else "")
-        plt.plot(results[w]['train'], label=label)
-    plt.xlabel('联邦轮次')
-    plt.ylabel('训练损失 (MSE)')
-    plt.title('不同 proximal_weight 的训练损失对比')
-    plt.legend()
-    plt.grid(True)
+        ax1.plot(results[w]['train'], linewidth=2, label=label)
+    ax1.set_title('Train Loss Comparison', fontsize=14, fontweight='bold')
+    ax1.set_xlabel('Communication Rounds')
+    ax1.set_ylabel('MSE Loss')
+    ax1.grid(True, alpha=0.3)
+    ax1.legend()
     
-    # 测试损失对比
-    plt.subplot(1, 2, 2)
+    # 右图：测试损失对比
+    ax2.set_facecolor('#ffffff')
     for w in weights:
         label = f'μ={w}' + (" (FedAvg)" if w == 0 else "")
-        plt.plot(results[w]['test'], label=label)
-    plt.xlabel('联邦轮次')
-    plt.ylabel('测试损失 (MSE)')
-    plt.title('不同 proximal_weight 的测试损失对比')
-    plt.legend()
-    plt.grid(True)
+        ax2.plot(results[w]['test'], linewidth=2, label=label)
+    ax2.set_title('Test Loss Comparison', fontsize=14, fontweight='bold')
+    ax2.set_xlabel('Communication Rounds')
+    ax2.set_ylabel('MSE Loss')
+    ax2.grid(True, alpha=0.3)
+    ax2.legend()
     
     plt.tight_layout()
-    plt.savefig('fedprox_comparison.png', dpi=150, bbox_inches='tight')
-    print("\n✅ 对比实验完成！结果已保存: fedprox_comparison.png")
-    plt.show()
+    
+    import time
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    project_root = os.path.dirname(script_dir)
+    save_path = os.path.join(project_root, "results", f"fedprox_comparison_{timestamp}.png")
+    plt.savefig(save_path,
+                dpi=300,
+                bbox_inches='tight',
+                facecolor='#f5f5f5')
+    print(f"\n✅ 对比实验完成！结果已保存: {save_path}")
+    plt.close()
     
     # 5. 输出最佳参数
     final_losses = {w: results[w]['test'][-1] for w in weights}
