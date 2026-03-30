@@ -12,6 +12,9 @@
 - **自适应早停**：基于统计检验(t-test)和运行平均值检测，无需手动设置patience
 - **贝叶斯超参数优化**：8个超参数自动搜索，sMAPE从69.93%降至62.64%
 - **v1 最优基线**：特征选择后达到 **61.73%**，超越所有 v2.5 特征工程尝试
+- **窗口长度决定性验证**：短期窗口（1天）优于长期窗口（7天），SHAP 可解释性分析揭示原因
+- **五节点联邦学习验证**：在5个代表性节点上，7天窗口（31.82%）优于1天窗口（36.18%），验证结论普适性
+- **跨粒度知识迁移**：利用清华30分钟细粒度数据，通过联邦学习提升巴塞罗那6小时预测精度（2节点提升26.57%）
 - **边缘部署**：INT8量化压缩比3.12x，树莓派推理19.3ms/样本，手机端部署
 - **实时监控**：Flask + ECharts手机仪表盘，10秒自动刷新
 
@@ -57,27 +60,20 @@
 hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 ```
 
-### 贝叶斯优化最佳超参数
+### 窗口长度对比与可解释性分析
 
-| 参数 | 值 | 搜索范围 | 说明 |
-|:---|:---|:---|:---|
-| hidden_dim | 256 | 32-256 | LSTM隐藏层维度 |
-| num_layers | 2 | 1-4 | LSTM层数 |
-| learning_rate | 0.00363 | 1e-4 ~ 1e-2 (log空间) | Adam优化器 |
-| dropout | 0.46 | 0.1-0.5 | Dropout比例 |
-| batch_size | 32 | 32, 64, 128 | 批次大小 |
-| optimizer | Adam | Adam, AdamW | 优化器类型 |
-| scheduler | plateau | plateau, cosine | 学习率调度器 |
-| grad_clip | 0.34 | 0.1-5.0 (log空间) | 梯度裁剪阈值 |
+| 窗口 | 节点数 | sMAPE | 关键发现 |
+|:---|:---:|:---:|:---|
+| **1天 (4步)** | 2 | 28.45% | 优于所有复杂方法 |
+| 1天 (4步) | 41 | 39.69% | 核心基线 |
+| 7天 (28步) | 2 | 55.42% | 精度下降明显 |
+| **1天 (4步)** | **5** | **36.18%** | 五节点短期基线 |
+| **7天 (28步)** | **5** | **31.82%** | **五节点长期基线（更优）** |
 
-### 特征工程对比（v1 vs v2.5）
-
-| 版本 | 特征数 | 参数量 | sMAPE | 结论 |
-|:---|:---:|:---:|:---:|:---|
-| v2.5 原版 | 19 | 460k | 70.34% | 过拟合 |
-| v2.5 精选 | 16 | 118k | 67.21% | 仍过拟合 |
-| v2.5 超级精选 | 12 | 54k | 68.17% | 仍无效 |
-| **v1 最佳** | **7** | **451k** | **61.73%** | **最优** |
+**SHAP 可解释性分析结论**（五节点验证）：
+- **正向亮点**：7天窗口的第一天重要性是后续天数的 **2-3 倍**，且逐日快速衰减，证明其能捕获周模式。
+- **负向亮点**：所有优化方法（E3粒度融合、E4知识迁移加权、E5可学习权重、E2节点加权）在7天窗口上的 sMAPE 均高于基线（39.25% vs 31.82%），证明这些方法无效。
+- **结果保存**：SHAP 图表位于 `results/figures/`，SHAP 数组位于 `results/shap_arrays/`，综合报告位于 `results/reports/comprehensive_report.html`。
 
 ### 联邦学习结果
 
@@ -86,6 +82,9 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 | FedAvg | 42 | 仅能耗 | 10 | 65-70% | ✅ 已完成 |
 | FedProx (mu=0.001) | 24 | v1 特征 | 20 | 运行中 | ▶️ |
 | FedProx (mu=0.01) | 24 | v1 特征 | 20 | 运行中 | ▶️ |
+| **粒度融合** | 2 | 1天+清华 | 10 | 32.66% | ✅ 已完成 |
+| 粒度融合 | 41 | 1天+清华 | 10 | 40.81% | ✅ 已完成 |
+| **时段加权（E4）** | 2 | 1天+清华+SHAP权重 | 10 | **27.82%** | ✅ 已完成 |
 
 ### 贝叶斯优化（进行中）
 
@@ -96,6 +95,15 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 | 6 | 96 | 4 | 9.21e-03 | 0.18 | 128 | AdamW | plateau | 0.40 | 0.002008 | 64.07% |
 
 **状态**：20次试验，已运行 7/20 次，预计 1-2 小时完成
+
+### 特征工程对比（v1 vs v2.5）
+
+| 版本 | 特征数 | 参数量 | sMAPE | 结论 |
+|:---|:---:|:---:|:---:|:---|
+| v2.5 原版 | 19 | 460k | 70.34% | 过拟合 |
+| v2.5 精选 | 16 | 118k | 67.21% | 仍过拟合 |
+| v2.5 超级精选 | 12 | 54k | 68.17% | 仍无效 |
+| **v1 最佳** | **7** | **451k** | **61.73%** | **最优** |
 
 ### 边缘部署性能
 
@@ -174,46 +182,80 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 ```
 beiyou_c_project/
 ├── data/processed/
-│   ├── barcelona_ready/           # v2.5 数据
-│   └── barcelona_ready_v1/        # v1 数据（最优）
-├── src/
-│   ├── data_loader/
-│   │   ├── barcelona_preprocess_v1.py
-│   │   ├── barcelona_dataset_v1.py
-│   │   └── barcelona_preprocess.py
-│   ├── federated/
-│   │   ├── fedprox_client.py
-│   │   └── fedprox_server.py
-│   └── optimization/
-│       ├── cyclical_encoder.py    # v3
-│       ├── attention_lstm.py      # v4
-│       ├── weather_data.py        # v5
-│       ├── personalized_fed.py    # v6
-│       └── ensemble.py            # v7
-├── experiments/beautified/
-│   ├── train_single_node_v1.py    # v1 训练
-│   ├── train_federated.py         # 联邦训练
-│   └── bayes_pro.py               # 贝叶斯优化
-├── configs/
-│   ├── federated_v1_24nodes_optimized.json
-│   └── optimization/optimized_config.yaml
-├── results/beautified/
-│   ├── node_8001_v1_predictions_20260322_000255.png
-│   ├── node_8001_v1_loss_20260322_000255.png
-│   ├── federated_nodes42_rounds10_mu0.0_loss_20260321_154304.png
-│   └── federated_nodes3_rounds10_mu0.0_*.pkl
-├── tools/
-│   └── platform-tools/            # ADB 手机调试
-├── scripts/
-│   ├── run_federated.sh
-│   ├── run_single_node.sh
-│   └── run_bayes.sh
-├── docs/daily_logs/
+│   ├── barcelona_ready/                 # 原始6小时数据
+│   ├── barcelona_ready_v1/              # v1 预处理数据
+│   ├── barcelona_ready_2019_2022/       # 旧口径数据
+│   ├── barcelona_ready_2023_2025/       # 新口径数据
+│   ├── tsinghua/                        # 清华原始数据（30分钟）
+│   ├── tsinghua_6h/                     # 降采样为6小时后的清华数据
+│   ├── tsinghua_full/                   # 完整清华数据
+│   └── tsinghua_v2/                     # 清华数据第二版
+├── results/
+│   ├── beautified/                      # 各类训练曲线、预测图
+│   ├── barcelona_clustering/            # 节点聚类结果
+│   ├── barcelona_weights/               # 4G/5G 权重可视化
+│   ├── shap_analysis/                   # SHAP 分析旧结果
+│   ├── shap_comparison/                 # 4G/5G SHAP 对比
+│   ├── figures/                         # 最新 SHAP 分析图表（五节点）
+│   │   ├── window_comparison.png
+│   │   ├── baseline_multi_node_boxplot.png
+│   │   ├── baseline_multi_node_daily_heatmap.png
+│   │   ├── baseline_waterfall.png
+│   │   ├── baseline_node8001_timesteps.png
+│   │   ├── E3_multi_node_boxplot.png
+│   │   ├── E3_multi_node_daily_heatmap.png
+│   │   ├── E4_multi_node_boxplot.png
+│   │   ├── E4_multi_node_daily_heatmap.png
+│   │   ├── E5_multi_node_boxplot.png
+│   │   ├── E5_multi_node_daily_heatmap.png
+│   │   ├── E2_multi_node_boxplot.png
+│   │   ├── E2_multi_node_daily_heatmap.png
+│   │   └── 7day_negative_experiments.png
+│   ├── shap_arrays/                     # SHAP 数组（用于快速重绘）
+│   └── reports/                         # 综合报告
+│       └── comprehensive_report.html
+├── versions/
+│   └── v2_holiday_sector/               # 主要工作区
+│       ├── batch_shap_by_cluster.py               # 批量 SHAP 分析（23节点）
+│       ├── train_federated_dual_stream_7day.py    # 双流模型（7天+清华）
+│       ├── train_federated_dual_stream_7day_weighted.py # 双流+时段加权
+│       ├── shap_window_comparison_optimized.py    # 单节点 SHAP 分析
+│       ├── train_federated_1day_baseline_fixed.py # 1天窗口基线（联邦）
+│       ├── train_federated_7day_baseline_fixed.py # 7天窗口基线（联邦）
+│       ├── train_federated_optuna_pro_final.py    # 联邦学习 + 贝叶斯优化
+│       ├── comprehensive_final.py                 # 综合正负向 SHAP 分析
+│       ├── model_1day_5nodes.pth                  # 1天窗口五节点模型
+│       ├── model_7day_5nodes.pth                  # 7天窗口五节点基线模型
+│       ├── model_7day_e3_5nodes.pth               # E3 模型
+│       ├── model_7day_e4_5nodes.pth               # E4 模型
+│       ├── model_7day_e5_5nodes.pth               # E5 模型
+│       ├── model_7day_e2_5nodes.pth               # E2 模型
+│       ├── baseline_41node_valornorm.log          # 41节点7天基线日志
+│       ├── fusion_2node.log / fusion_41node.log   # 粒度融合日志
+│       └── results/shap_multi_nodes/              # 23节点批量 SHAP 结果
+│           ├── summary.csv
+│           ├── smape_comparison_boxplot.png
+│           └── daily_importance_heatmap.png
+├── configs/                             # 配置文件
+│   └── federated_v1_24nodes_optimized.json
+├── docs/daily_logs/                     # 每日工作日志（含 Day 1-19）
 │   ├── 2026-03-15_day1.md
-│   ├── ...
-│   └── 2026-03-22_day14.md
-└── versions/
-    └── v2_holiday_sector/         # 优化版本
+│   ├── 2026-03-16_day2-8.md
+│   ├── 2026-03-17_day9.md
+│   ├── 2026-03-18-19_day10.md
+│   ├── 2026-03-19_day11.md
+│   ├── 2026-03-20_day12.md
+│   ├── 2026-03-21_day13.md
+│   ├── 2026-03-22_day14.md
+│   ├── 2026-03-23_day15.md
+│   ├── 2026-03-24-25_day16.md
+│   ├── 2026-03-26_day17.md
+│   ├── 2026-03-27_day18.md
+│   └── 2026-03-28-29_day19.md
+├── experiments/                         # 实验脚本
+├── scripts/                             # 辅助脚本
+└── tools/                               # 工具（含 ADB）
+    └── platform-tools/
 ```
 
 ---
@@ -224,25 +266,34 @@ beiyou_c_project/
 # 1. 安装依赖
 pip install -r requirements.txt
 
-# 2. v1 单节点训练（最佳配置）
-python experiments/beautified/train_single_node_v1.py \
-    --node 8001 --epochs 20 --percentile 15 \
-    --hidden_dim 192 --lr 0.002 --dropout 0.45 --batch_size 48
+# 2. 单节点 SHAP 分析（窗口对比示例）
+cd versions/v2_holiday_sector
+python shap_window_comparison_optimized.py
 
 # 3. 联邦学习（24节点）
-python experiments/beautified/train_federated.py \
-    --config configs/federated_v1_24nodes_optimized.json
+python train_federated_optuna_pro_final.py --config configs/federated_v1_24nodes_optimized.json
 
 # 4. 贝叶斯优化
-python versions/v2_holiday_sector/experiments/beautified/bayes_pro.py --trials 20
+python experiments/beautified/bayes_pro.py --trials 20
 
-# 5. 手机部署
+# 5. 批量 SHAP 分析（23节点分层抽样）
+python batch_shap_by_cluster.py --samples_per_cluster 3
+
+# 6. 综合正负向 SHAP 分析（五节点，含报告）
+python comprehensive_final.py \
+    --baseline_model model_7day_5nodes.pth \
+    --nodes 8001,8002,8004,8006,8012 \
+    --one_day_smape 36.18 \
+    --seven_day_smape 31.82 \
+    --replot   # 若已有 SHAP 数组，可快速重绘
+
+# 7. 手机部署
 ./tools/platform-tools/adb.exe push models/ /sdcard/
 
-# 6. 树莓派推理
+# 8. 树莓派推理
 cd experiments && python raspberry_inference.py
 
-# 7. 手机仪表盘
+# 9. 手机仪表盘
 python experiments/mobile_dashboard/app.py
 # 访问: http://127.0.0.1:5000
 ```
@@ -263,6 +314,7 @@ python experiments/mobile_dashboard/app.py
 | LSTM (早停) | 基站能耗 | sMAPE | 68.15% |
 | LSTM (贝叶斯) | 基站能耗 | sMAPE | 62.64% |
 | **LSTM (v1 最佳)** | **基站能耗** | **sMAPE** | **61.73%** 🏆 |
+| **1天窗口 (4步)** | **基站能耗** | **sMAPE** | **28.45%** 🚀 |
 
 ---
 
@@ -291,6 +343,12 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 - 基础特征（能耗+部门+节假日+周末）已足够
 - 更多特征引入噪声，导致过拟合
 
+### 5. 窗口长度决定性与 SHAP 分析
+- 1天窗口精度（28.45%）远优于7天窗口（55.42%），证明了短期历史的重要性
+- 23节点批量 SHAP 验证：78% 节点短期更优，第一天重要性是后续的 2.3 倍
+- 五节点验证：7天窗口基线 sMAPE=31.82%，优于1天窗口的36.18%，SHAP 显示第一天贡献占主导
+- 清华细粒度数据可小幅改善7天窗口（+3.52%），但无法替代短期窗口
+
 ---
 
 ## 📝 下一步
@@ -300,8 +358,10 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 | P0 | v1 单节点最优 (61.73%) | - | ✅ |
 | P1 | 24节点联邦学习 | 58-62% | ▶️ 过夜跑 |
 | P2 | 贝叶斯优化完成 | 61-63% | ▶️ 进行中 |
-| P3 | 手机端部署 | - | 📋 |
-| P4 | 1小时粒度数据获取 | 30-40% | 📋 |
+| P3 | 多节点 SHAP 验证（23节点+5节点） | 已完成 | ✅ |
+| P4 | 节能决策模拟 | 待量化 | 📋 |
+| P5 | 手机端部署 | - | 📋 |
+| P6 | 1小时粒度数据获取 | 30-40% | 📋 |
 
 ---
 
@@ -309,9 +369,16 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 - [Day 1: MLP与反向传播](docs/daily_logs/2026-03-15_day1.md)
 - [Day 2-8: LSTM + FedAvg + GCN + GAT](docs/daily_logs/2026-03-16_day2-8.md)
 - [Day 9: 真实数据集 + FedProx](docs/daily_logs/2026-03-17_day9.md)
-- [Day 10: 树莓派部署 + 手机仪表盘](docs/daily_logs/2026-03-19_day11.md)
-- [Day 11: 数据预处理 + 单节点基线](docs/daily_logs/2026-03-20_day12.md)
-- [Day 12: 自适应早停 + 贝叶斯优化](docs/daily_logs/2026-03-21_day13.md)
-- [Day 13: v1 最优 + 联邦学习过夜跑](docs/daily_logs/2026-03-22_day14.md)
+- [Day 10: 树莓派部署 + 手机仪表盘](docs/daily_logs/2026-03-18-19_day10.md)
+- [Day 11: 数据预处理 + 单节点基线](docs/daily_logs/2026-03-19_day11.md)
+- [Day 12: 自适应早停 + 贝叶斯优化](docs/daily_logs/2026-03-20_day12.md)
+- [Day 13: v1 最优 + 联邦学习过夜跑](docs/daily_logs/2026-03-21_day13.md)
+- [Day 14: 粒度融合验证](docs/daily_logs/2026-03-22_day14.md)
+- [Day 15: 两阶段口径修复实验](docs/daily_logs/2026-03-23_day15.md)
+- [Day 16: 4G/5G 权重分析与对比](docs/daily_logs/2026-03-24-25_day16.md)
+- [Day 17: 粒度融合完成与基线对比](docs/daily_logs/2026-03-26_day17.md)
+- [Day 18: SHAP 窗口分析 + 多节点批量框架搭建](docs/daily_logs/2026-03-27_day18.md)
+- [Day 19: 五节点七日窗口实验完成 + 正负向综合分析](docs/daily_logs/2026-03-28-29_day19.md)
 
 ---
+

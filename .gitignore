@@ -62,3 +62,48 @@ versions/*/__pycache__/
 versions/*/*.pyc
 versions/*/*.log
 versions/*/*.db
+
+# 忽略实验目录下的临时文件和备份
+experiments/archive/
+experiments/debug/
+experiments/legacy/
+experiments/logs/
+experiments/preprocess/
+experiments/tests/
+experiments/*backup*
+experiments/*_backup*.py
+experiments/*_backup*.txt
+temp_netdata/
+tools/
+
+# 忽略版本目录下的备份和实验子目录
+versions/*/backup_7day/
+versions/*/experiments/
+versions/*/scripts/
+versions/*/src/
+versions/*/configs/
+versions/*/*.log
+versions/*/*.db
+versions/*/*.pkl
+versions/*/*.pth
+versions/*/*.npy
+
+# 忽略版本目录下的特定子目录
+versions/v2_holiday_sector/configs/
+versions/v2_holiday_sector/experiments/
+versions/v2_holiday_sector/scripts/
+versions/v2_holiday_sector/src/
+
+# 忽略实验目录下的剩余未跟踪内容
+experiments/federated/
+experiments/monitoring/
+experiments/scripts/
+experiments/utils/
+experiments/barcelona_nodes.html
+experiments/day5_dasbord_test.py
+experiments/fedprox_results_20260319_130114.txt
+experiments/model_registry.json
+scripts/export_node_losses.py
+scripts/validation/
+scripts/visualization/
+docs/daily_logs/day4_changes_log.txt

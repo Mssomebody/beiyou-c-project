@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Energy Dashboard</title>
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .chart-container {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+<body class="p-4 max-w-md mx-auto">
+    <div class="space-y-4">
+        <!-- Header with Battery -->
+        <div class="card p-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold text-gray-800">Energy Monitor</h1>
+                <div class="flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="2" y="7" width="18" height="10" rx="2" stroke-width="2"></rect>
+                        <rect x="20" y="10" width="2" height="4" rx="0.5" stroke-width="2"></rect>
+                    </svg>
+                    <span id="battery-level" class="font-semibold text-gray-700">--%</span>
+                </div>
+            </div>
+            <p id="update-time" class="text-sm text-gray-500 mt-1">--</p>
+        </div>
+
+        <!-- Current Power Card -->
+        <div class="card p-6 text-center">
+            <p class="text-sm text-gray-500 mb-2">Current Power</p>
+            <p id="current-power" class="text-4xl font-bold text-gray-800 mb-2">--</p>
+            <p class="text-sm text-gray-500">kW</p>
+            <div class="mt-4 inline-block px-4 py-2 rounded-full text-white font-semibold" id="status-badge">
+                --
+            </div>
+        </div>
+
+        <!-- 6h Prediction Chart -->
+        <div class="card p-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">6-Hour Prediction</h3>
+            <div id="prediction-chart" class="chart-container"></div>
+        </div>
+
+        <!-- 24h History Chart -->
+        <div class="card p-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">24-Hour History</h3>
+            <div id="history-chart" class="chart-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts
+        let predictionChart = echarts.init(document.getElementById('prediction-chart'));
+        let historyChart = echarts.init(document.getElementById('history-chart'));
+
+        // Update data
+        function updateData() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const d = data.data;
+                        
+                        // Update header
+                        document.getElementById('update-time').textContent = d.current_time;
+                        document.getElementById('battery-level').textContent = d.battery_level + '%';
+                        
+                        // Update current power
+                        document.getElementById('current-power').textContent = d.current_power;
+                        const statusBadge = document.getElementById('status-badge');
+                        statusBadge.textContent = d.status;
+                        statusBadge.style.backgroundColor = d.status_color;
+                        
+                        // Update prediction chart
+                        const predictionHours = ['+1h', '+2h', '+3h', '+4h', '+5h', '+6h'];
+                        predictionChart.setOption({
+                            xAxis: {
+                                type: 'category',
+                                data: predictionHours,
+                                axisLine: { lineStyle: { color: '#e5e7eb' } },
+                                axisLabel: { color: '#6b7280' }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                name: 'kW',
+                                nameTextStyle: { color: '#6b7280' },
+                                axisLine: { lineStyle: { color: '#e5e7eb' } },
+                                axisLabel: { color: '#6b7280' },
+                                splitLine: { lineStyle: { color: '#f3f4f6' } }
+                            },
+                            series: [{
+                                data: d.prediction_6h,
+                                type: 'line',
+                                smooth: true,
+                                lineStyle: { color: '#dc2626', width: 3 },
+                                itemStyle: { color: '#dc2626' },
+                                areaStyle: {
+                                    color: {
+                                        type: 'linear',
+                                        x: 0, y: 0, x2: 0, y2: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgba(220, 38, 38, 0.3)' },
+                                            { offset: 1, color: 'rgba(220, 38, 38, 0.05)' }
+                                        ]
+                                    }
+                                }
+                            }],
+                            grid: { left: '10%', right: '5%', bottom: '10%', top: '10%' }
+                        });
+                        
+                        // Update history chart
+                        const historyHours = Array.from({length: 24}, (_, i) => `${i}h`);
+                        historyChart.setOption({
+                            xAxis: {
+                                type: 'category',
+                                data: historyHours,
+                                axisLine: { lineStyle: { color: '#e5e7eb' } },
+                                axisLabel: { color: '#6b7280', fontSize: 10 }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                name: 'kW',
+                                nameTextStyle: { color: '#6b7280' },
+                                axisLine: { lineStyle: { color: '#e5e7eb' } },
+                                axisLabel: { color: '#6b7280' },
+                                splitLine: { lineStyle: { color: '#f3f4f6' } }
+                            },
+                            series: [{
+                                data: d.history_24h,
+                                type: 'line',
+                                smooth: true,
+                                lineStyle: { color: '#2563eb', width: 3 },
+                                itemStyle: { color: '#2563eb' },
+                                areaStyle: {
+                                    color: {
+                                        type: 'linear',
+                                        x: 0, y: 0, x2: 0, y2: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgba(37, 99, 235, 0.3)' },
+                                            { offset: 1, color: 'rgba(37, 99, 235, 0.05)' }
+                                        ]
+                                    }
+                                }
+                            }],
+                            grid: { left: '10%', right: '5%', bottom: '10%', top: '10%' }
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Initialize and refresh every 10 seconds
+        updateData();
+        setInterval(updateData, 10000);
+
+        // Resize charts on window resize
+        window.addEventListener('resize', () => {
+            predictionChart.resize();
+            historyChart.resize();
+        });
+    </script>
+</body>
+</html>
