@@ -7,6 +7,7 @@ __pycache__/
 *.bak
 *.bak*
 *.swp
+*~
 
 # IDE
 .vscode/
@@ -16,94 +17,68 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# 版本目录
-# Python
-__pycache__/
-*.py[cod]
-*.so
-*.egg-info/
-*.egg
-
-# 日志与临时文件
-*.log
-*.db
-*.sqlite3
+# 临时文件
 *.tmp
-*.bak
 nohup.out
-
-# 实验结果
-results/
-checkpoints/
-*.pth
-*.pkl
-*.npy
-*.png
-
-# 数据（原始数据不应上传）
-data/
-fl_data/
-
-# IDE
-.vscode/
-.idea/
-
-# 系统文件
-.DS_Store
-Thumbs.db
 
 # 环境
 venv/
 env/
 ENV/
 
-# 忽略版本目录下的临时文件
+# 原始数据（不提交）
+data/
+fl_data/
+decision/data/
+
+# 决策模块运行时输出（不提交）
+decision/outputs/
+
+# 实验结果目录：忽略大文件，但保留图表、报告、SHAP数组（可选）和关键日志
+results/__pycache__/
+results/*.pth
+results/*.pkl
+results/*.npy
+results/*.log
+results/*.db
+# 保留重要子目录（图表、报告、SHAP数组）
+!results/figures/
+!results/reports/
+!results/shap_arrays/
+
+# 版本目录：忽略缓存、备份、临时文件，但保留代码、模型、日志
 versions/*/__pycache__/
 versions/*/*.pyc
-versions/*/*.log
-versions/*/*.db
-
-# 忽略实验目录下的临时文件和备份
-experiments/archive/
-experiments/debug/
-experiments/legacy/
-experiments/logs/
-experiments/preprocess/
-experiments/tests/
-experiments/*backup*
-experiments/*_backup*.py
-experiments/*_backup*.txt
-temp_netdata/
-tools/
-
-# 忽略版本目录下的备份和实验子目录
 versions/*/backup_7day/
 versions/*/experiments/
 versions/*/scripts/
 versions/*/src/
 versions/*/configs/
+# 忽略版本目录下的大型临时文件，但保留最终模型和日志
 versions/*/*.log
 versions/*/*.db
-versions/*/*.pkl
-versions/*/*.pth
-versions/*/*.npy
+versions/*/*.tmp
+# 如果模型文件较大，可取消注释下面行以忽略，但建议保留小型最终模型
+# versions/*/*.pth
+# versions/*/*.pkl
+# versions/*/*.npy
 
-# 忽略版本目录下的特定子目录
-versions/v2_holiday_sector/configs/
-versions/v2_holiday_sector/experiments/
-versions/v2_holiday_sector/scripts/
-versions/v2_holiday_sector/src/
+# 实验目录：忽略备份和临时文件，但保留重要日志
+experiments/archive/
+experiments/debug/
+experiments/legacy/
+experiments/preprocess/
+experiments/tests/
+experiments/*backup*
+experiments/*_backup*.py
+experiments/*_backup*.txt
+# 但保留关键日志（如 *.log，如果重要）
+!experiments/*.log
+!versions/v2_holiday_sector/*.log
 
-# 忽略实验目录下的剩余未跟踪内容
-experiments/federated/
-experiments/monitoring/
-experiments/scripts/
-experiments/utils/
-experiments/barcelona_nodes.html
-experiments/day5_dasbord_test.py
-experiments/fedprox_results_20260319_130114.txt
-experiments/model_registry.json
-scripts/export_node_losses.py
-scripts/validation/
-scripts/visualization/
-docs/daily_logs/day4_changes_log.txt
+# 其他临时目录
+temp_netdata/
+tools/
+
+# 文档中的临时文件
+docs/daily_logs/*.log
