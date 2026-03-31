@@ -1,22 +1,22 @@
 # FedGreen-C: 面向5G基站能耗预测的联邦学习系统
 
-> 基于联邦学习的5G基站能耗预测系统 | PyTorch | LSTM | FedProx | Optuna | 手机部署
+> 基于联邦学习的5G基站能耗预测系统 | PyTorch | LSTM | FedProx | Optuna | 手机部署 | 节能决策引擎
 
 ---
 
 ## 📌 项目概述
 
-本项目实现了一套完整的5G基站能耗预测系统，核心创新点：
+本项目实现了一套完整的5G基站能耗预测与节能决策系统，核心创新点：
 
 - **联邦学习框架**：FedProx算法，支持42个基站节点协同训练，保护数据隐私
 - **自适应早停**：基于统计检验(t-test)和运行平均值检测，无需手动设置patience
 - **贝叶斯超参数优化**：8个超参数自动搜索，sMAPE从69.93%降至62.64%
-- **v1 最优基线**：特征选择后达到 **61.73%**，超越所有 v2.5 特征工程尝试
-- **窗口长度决定性验证**：短期窗口（1天）优于长期窗口（7天），SHAP 可解释性分析揭示原因
+- **窗口长度决定性验证**：2节点上短期窗口（1天）优于长期窗口（7天）；5节点上长期窗口反超，揭示节点异质性的关键影响
 - **五节点联邦学习验证**：在5个代表性节点上，7天窗口（31.82%）优于1天窗口（36.18%），验证结论普适性
 - **跨粒度知识迁移**：利用清华30分钟细粒度数据，通过联邦学习提升巴塞罗那6小时预测精度（2节点提升26.57%）
 - **边缘部署**：INT8量化压缩比3.12x，树莓派推理19.3ms/样本，手机端部署
 - **实时监控**：Flask + ECharts手机仪表盘，10秒自动刷新
+- **节能决策引擎**：基于分位数阈值、动态电价/碳排、月度参数匹配的决策系统，支持一天/七天窗口，输出节能量化指标与可视化图表
 
 **技术栈**：PyTorch 2.10 | LSTM | FedProx | Optuna 4.8 | Flask | ECharts | 手机 (VIVO Y50)
 
@@ -64,16 +64,18 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 
 | 窗口 | 节点数 | sMAPE | 关键发现 |
 |:---|:---:|:---:|:---|
-| **1天 (4步)** | 2 | 28.45% | 优于所有复杂方法 |
+| **1天 (4步)** | 2 | 28.45% | 短期窗口在2节点上占优 |
 | 1天 (4步) | 41 | 39.69% | 核心基线 |
-| 7天 (28步) | 2 | 55.42% | 精度下降明显 |
+| 7天 (28步) | 2 | 55.42% | 长期窗口在2节点上大幅下降 |
 | **1天 (4步)** | **5** | **36.18%** | 五节点短期基线 |
 | **7天 (28步)** | **5** | **31.82%** | **五节点长期基线（更优）** |
 
-**SHAP 可解释性分析结论**（五节点验证）：
-- **正向亮点**：7天窗口的第一天重要性是后续天数的 **2-3 倍**，且逐日快速衰减，证明其能捕获周模式。
-- **负向亮点**：所有优化方法（E3粒度融合、E4知识迁移加权、E5可学习权重、E2节点加权）在7天窗口上的 sMAPE 均高于基线（39.25% vs 31.82%），证明这些方法无效。
-- **结果保存**：SHAP 图表位于 `results/figures/`，SHAP 数组位于 `results/shap_arrays/`，综合报告位于 `results/reports/comprehensive_report.html`。
+**结论**：窗口长度的最优选择与节点数量强相关。单节点或2节点时，1天窗口占优；5节点时，7天窗口反超，说明节点间的模式多样性需要更长历史才能有效学习。
+
+**SHAP 可解释性分析**（五节点）：
+- 7天窗口的第一天重要性是后续天数的 **2-3 倍**，且逐日快速衰减，证明其能捕获周模式。
+- 所有优化方法（E3粒度融合、E4知识迁移加权、E5可学习权重、E2节点加权）在7天窗口上的 sMAPE 均高于基线（39.25% vs 31.82%），证明这些方法在此场景下无效。
+- 结果保存：SHAP 图表位于 `results/figures/`，SHAP 数组位于 `results/shap_arrays/`，综合报告位于 `results/reports/comprehensive_report.html`。
 
 ### 联邦学习结果
 
@@ -114,9 +116,26 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 | MSE | 0.33304 | 0.33305 | 损失 **0.01%** |
 | 特征工程 | 1个原始特征 | 11个工程特征 | 滚动统计+差分+时间 |
 
+### 节能决策模块
+
+| 模块 | 成果 | 文件/路径 | 状态 |
+|:---|:---|:---|:---:|
+| **决策配置** | 节点月度电价/碳排参数 | `decision/config/node_weighted_params_monthly.csv` | ✅ 已生成（41节点×7年×12月） |
+| | 动态阈值（时段+节假日） | `decision/config/thresholds_dynamic.json` | ✅ 已生成 |
+| | 年度电价/碳排（备用） | `decision/config/eurostat_prices.csv`<br>`decision/config/spanish_carbon_intensity.csv` | ✅ 已生成 |
+| | 基础分位数阈值（年度） | `decision/config/thresholds.json` | ✅ 已生成 |
+| **决策脚本** | 统一决策引擎（支持1天/7天窗口） | `decision/scripts/run_decision.py` | ✅ 已开发 |
+| | 节点参数生成脚本 | `decision/scripts/generate_node_weighted_params_monthly.py` | ✅ 已执行 |
+| | 电价/碳排提取脚本 | `decision/scripts/extract_eurostat_prices_v2.py` | ✅ 已开发 |
+| **一天窗口扩展** | 一天窗口基线（预训练+微调） | `versions/v2_holiday_sector/train_federated_pretrain_1day.py`<br>`versions/v2_holiday_sector/train_federated_finetune_1day.py` | ✅ 已开发 |
+| | 一天窗口可学习时段 | `versions/v2_holiday_sector/train_sliding_learnable_hour_1day.py`<br>`versions/v2_holiday_sector/train_federated_finetune_learnable_1day.py` | ✅ 已开发 |
+| **预训练** | 41节点7天窗口预训练 | 脚本 `versions/v2_holiday_sector/train_federated_pretrain.py` 已就绪 | 📋 待启动 |
+| **微调** | 7天窗口微调（优化版） | `versions/v2_holiday_sector/train_federated_finetune_optimized.py` | ✅ 已开发 |
+| **决策输出** | 节能量化结果（CSV/JSON）及图表 | `decision/outputs/`（待生成） | ⏳ 模型完成后运行 |
+
 ---
 
-## 📈 训练曲线
+## 📈 训练曲线（部分）
 
 ### 1. 自适应早停对比图
 ![自适应早停](results/beautified/adaptive_comparison_20260320_123038.png)
@@ -181,81 +200,63 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 
 ```
 beiyou_c_project/
+├── decision/                              # 决策模块（新增）
+│   ├── config/
+│   │   ├── node_weighted_params_monthly.csv
+│   │   ├── thresholds_dynamic.json
+│   │   ├── thresholds.json
+│   │   ├── eurostat_prices.csv
+│   │   └── spanish_carbon_intensity.csv
+│   ├── models/                            # 待存放微调后模型
+│   ├── outputs/                           # 决策结果（CSV/JSON/图表）
+│   ├── scripts/
+│   │   ├── run_decision.py
+│   │   ├── generate_node_weighted_params_monthly.py
+│   │   └── extract_eurostat_prices_v2.py
+│   └── data/                              # 原始数据备份
+│       └── monthly_full_release_long_format.csv
 ├── data/processed/
-│   ├── barcelona_ready/                 # 原始6小时数据
-│   ├── barcelona_ready_v1/              # v1 预处理数据
-│   ├── barcelona_ready_2019_2022/       # 旧口径数据
-│   ├── barcelona_ready_2023_2025/       # 新口径数据
-│   ├── tsinghua/                        # 清华原始数据（30分钟）
-│   ├── tsinghua_6h/                     # 降采样为6小时后的清华数据
-│   ├── tsinghua_full/                   # 完整清华数据
-│   └── tsinghua_v2/                     # 清华数据第二版
+│   ├── barcelona_ready/                   # 原始6小时数据
+│   ├── barcelona_ready_v1/                # v1 预处理数据
+│   ├── barcelona_ready_2019_2022/         # 旧口径数据
+│   ├── barcelona_ready_2023_2025/         # 新口径数据
+│   ├── tsinghua/                          # 清华原始数据（30分钟）
+│   ├── tsinghua_6h/                       # 降采样为6小时后的清华数据
+│   ├── tsinghua_full/                     # 完整清华数据
+│   └── tsinghua_v2/                       # 清华数据第二版
 ├── results/
-│   ├── beautified/                      # 各类训练曲线、预测图
-│   ├── barcelona_clustering/            # 节点聚类结果
-│   ├── barcelona_weights/               # 4G/5G 权重可视化
-│   ├── shap_analysis/                   # SHAP 分析旧结果
-│   ├── shap_comparison/                 # 4G/5G SHAP 对比
-│   ├── figures/                         # 最新 SHAP 分析图表（五节点）
-│   │   ├── window_comparison.png
-│   │   ├── baseline_multi_node_boxplot.png
-│   │   ├── baseline_multi_node_daily_heatmap.png
-│   │   ├── baseline_waterfall.png
-│   │   ├── baseline_node8001_timesteps.png
-│   │   ├── E3_multi_node_boxplot.png
-│   │   ├── E3_multi_node_daily_heatmap.png
-│   │   ├── E4_multi_node_boxplot.png
-│   │   ├── E4_multi_node_daily_heatmap.png
-│   │   ├── E5_multi_node_boxplot.png
-│   │   ├── E5_multi_node_daily_heatmap.png
-│   │   ├── E2_multi_node_boxplot.png
-│   │   ├── E2_multi_node_daily_heatmap.png
-│   │   └── 7day_negative_experiments.png
-│   ├── shap_arrays/                     # SHAP 数组（用于快速重绘）
-│   └── reports/                         # 综合报告
-│       └── comprehensive_report.html
+│   ├── beautified/                        # 各类训练曲线、预测图
+│   ├── barcelona_clustering/              # 节点聚类结果
+│   ├── barcelona_weights/                 # 4G/5G 权重可视化
+│   ├── shap_analysis/                     # SHAP 分析旧结果
+│   ├── shap_comparison/                   # 4G/5G SHAP 对比
+│   ├── figures/                           # 最新 SHAP 分析图表（五节点）
+│   ├── shap_arrays/                       # SHAP 数组（用于快速重绘）
+│   ├── reports/                           # 综合报告
+│   │   └── comprehensive_report.html
+│   └── two_stage/                         # 预训练/微调日志与中间模型
 ├── versions/
-│   └── v2_holiday_sector/               # 主要工作区
+│   └── v2_holiday_sector/                 # 主要工作区
 │       ├── batch_shap_by_cluster.py               # 批量 SHAP 分析（23节点）
-│       ├── train_federated_dual_stream_7day.py    # 双流模型（7天+清华）
-│       ├── train_federated_dual_stream_7day_weighted.py # 双流+时段加权
 │       ├── shap_window_comparison_optimized.py    # 单节点 SHAP 分析
-│       ├── train_federated_1day_baseline_fixed.py # 1天窗口基线（联邦）
-│       ├── train_federated_7day_baseline_fixed.py # 7天窗口基线（联邦）
-│       ├── train_federated_optuna_pro_final.py    # 联邦学习 + 贝叶斯优化
 │       ├── comprehensive_final.py                 # 综合正负向 SHAP 分析
+│       ├── train_federated_pretrain.py            # 七天窗口预训练
+│       ├── train_federated_finetune_optimized.py  # 七天窗口微调（优化版）
+│       ├── train_federated_pretrain_1day.py       # 一天窗口预训练
+│       ├── train_federated_finetune_1day.py       # 一天窗口微调
+│       ├── train_sliding_learnable_hour_1day.py   # 一天窗口可学习时段预训练
+│       ├── train_federated_finetune_learnable_1day.py # 一天窗口可学习时段微调
 │       ├── model_1day_5nodes.pth                  # 1天窗口五节点模型
 │       ├── model_7day_5nodes.pth                  # 7天窗口五节点基线模型
+│       ├── model_7day_e2_5nodes.pth               # E2 模型
 │       ├── model_7day_e3_5nodes.pth               # E3 模型
 │       ├── model_7day_e4_5nodes.pth               # E4 模型
 │       ├── model_7day_e5_5nodes.pth               # E5 模型
-│       ├── model_7day_e2_5nodes.pth               # E2 模型
-│       ├── baseline_41node_valornorm.log          # 41节点7天基线日志
-│       ├── fusion_2node.log / fusion_41node.log   # 粒度融合日志
-│       └── results/shap_multi_nodes/              # 23节点批量 SHAP 结果
-│           ├── summary.csv
-│           ├── smape_comparison_boxplot.png
-│           └── daily_importance_heatmap.png
-├── configs/                             # 配置文件
-│   └── federated_v1_24nodes_optimized.json
-├── docs/daily_logs/                     # 每日工作日志（含 Day 1-19）
-│   ├── 2026-03-15_day1.md
-│   ├── 2026-03-16_day2-8.md
-│   ├── 2026-03-17_day9.md
-│   ├── 2026-03-18-19_day10.md
-│   ├── 2026-03-19_day11.md
-│   ├── 2026-03-20_day12.md
-│   ├── 2026-03-21_day13.md
-│   ├── 2026-03-22_day14.md
-│   ├── 2026-03-23_day15.md
-│   ├── 2026-03-24-25_day16.md
-│   ├── 2026-03-26_day17.md
-│   ├── 2026-03-27_day18.md
-│   └── 2026-03-28-29_day19.md
-├── experiments/                         # 实验脚本
-├── scripts/                             # 辅助脚本
-└── tools/                               # 工具（含 ADB）
-    └── platform-tools/
+│       └── results/                               # SHAP 中间结果
+├── configs/                                 # 配置文件
+├── experiments/                             # 实验脚本
+├── scripts/                                 # 辅助脚本
+└── tools/                                   # 工具（含 ADB）
 ```
 
 ---
@@ -270,16 +271,10 @@ pip install -r requirements.txt
 cd versions/v2_holiday_sector
 python shap_window_comparison_optimized.py
 
-# 3. 联邦学习（24节点）
-python train_federated_optuna_pro_final.py --config configs/federated_v1_24nodes_optimized.json
-
-# 4. 贝叶斯优化
-python experiments/beautified/bayes_pro.py --trials 20
-
-# 5. 批量 SHAP 分析（23节点分层抽样）
+# 3. 批量 SHAP 分析（23节点分层抽样）
 python batch_shap_by_cluster.py --samples_per_cluster 3
 
-# 6. 综合正负向 SHAP 分析（五节点，含报告）
+# 4. 综合正负向 SHAP 分析（五节点，含报告）
 python comprehensive_final.py \
     --baseline_model model_7day_5nodes.pth \
     --nodes 8001,8002,8004,8006,8012 \
@@ -287,13 +282,23 @@ python comprehensive_final.py \
     --seven_day_smape 31.82 \
     --replot   # 若已有 SHAP 数组，可快速重绘
 
-# 7. 手机部署
+# 5. 联邦学习（24节点）
+python train_federated_optuna_pro_final.py --config configs/federated_v1_24nodes_optimized.json
+
+# 6. 贝叶斯优化
+python experiments/beautified/bayes_pro.py --trials 20
+
+# 7. 一天窗口训练（可选）
+python train_federated_pretrain_1day.py
+python train_federated_finetune_1day.py
+
+# 8. 手机部署
 ./tools/platform-tools/adb.exe push models/ /sdcard/
 
-# 8. 树莓派推理
+# 9. 树莓派推理
 cd experiments && python raspberry_inference.py
 
-# 9. 手机仪表盘
+# 10. 手机仪表盘
 python experiments/mobile_dashboard/app.py
 # 访问: http://127.0.0.1:5000
 ```
@@ -314,7 +319,8 @@ python experiments/mobile_dashboard/app.py
 | LSTM (早停) | 基站能耗 | sMAPE | 68.15% |
 | LSTM (贝叶斯) | 基站能耗 | sMAPE | 62.64% |
 | **LSTM (v1 最佳)** | **基站能耗** | **sMAPE** | **61.73%** 🏆 |
-| **1天窗口 (4步)** | **基站能耗** | **sMAPE** | **28.45%** 🚀 |
+| **1天窗口 (2节点)** | **基站能耗** | **sMAPE** | **28.45%** |
+| **7天窗口 (5节点)** | **基站能耗** | **sMAPE** | **31.82%** |
 
 ---
 
@@ -344,24 +350,23 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 - 更多特征引入噪声，导致过拟合
 
 ### 5. 窗口长度决定性与 SHAP 分析
-- 1天窗口精度（28.45%）远优于7天窗口（55.42%），证明了短期历史的重要性
+- 2节点上1天窗口精度（28.45%）远优于7天窗口（55.42%）
+- 5节点上7天窗口（31.82%）优于1天窗口（36.18%），揭示节点数量影响最优窗口选择
 - 23节点批量 SHAP 验证：78% 节点短期更优，第一天重要性是后续的 2.3 倍
-- 五节点验证：7天窗口基线 sMAPE=31.82%，优于1天窗口的36.18%，SHAP 显示第一天贡献占主导
-- 清华细粒度数据可小幅改善7天窗口（+3.52%），但无法替代短期窗口
+- 五节点 SHAP 验证：第一天贡献占主导，所有优化方法均无效
 
 ---
 
 ## 📝 下一步
 
-| 优先级 | 任务 | 预期提升 | 状态 |
-|:---:|:---|:---:|:---:|
-| P0 | v1 单节点最优 (61.73%) | - | ✅ |
-| P1 | 24节点联邦学习 | 58-62% | ▶️ 过夜跑 |
-| P2 | 贝叶斯优化完成 | 61-63% | ▶️ 进行中 |
-| P3 | 多节点 SHAP 验证（23节点+5节点） | 已完成 | ✅ |
-| P4 | 节能决策模拟 | 待量化 | 📋 |
-| P5 | 手机端部署 | - | 📋 |
-| P6 | 1小时粒度数据获取 | 30-40% | 📋 |
+| 优先级 | 任务 | 预期成果 | 状态 |
+|:---:|:---|:---|:---:|
+| P0 | 启动41节点7天窗口预训练 | 预训练模型 `results/two_stage/model_fed_pretrain.pth` | 📋 脚本已就绪，待执行 |
+| P0 | 运行优化微调 | 微调模型 `decision/models/model_fed_finetune.pth` | 📋 预训练后执行 |
+| P0 | 运行决策脚本 | 节能量化结果（CSV/JSON）及图表 | 📋 模型完成后 |
+| P1 | 一天窗口模型训练与对比 | 一天窗口基线/可学习时段模型 | 📋 按需执行 |
+| P2 | 概念漂移检测（ADWIN） | 检测预测误差突变点，增强自适应能力 | 📋 可选创新点 |
+| P3 | Streamlit 可视化仪表盘 | 集成决策结果与图表 | 📋 最终展示 |
 
 ---
 
@@ -379,6 +384,5 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 - [Day 17: 粒度融合完成与基线对比](docs/daily_logs/2026-03-26_day17.md)
 - [Day 18: SHAP 窗口分析 + 多节点批量框架搭建](docs/daily_logs/2026-03-27_day18.md)
 - [Day 19: 五节点七日窗口实验完成 + 正负向综合分析](docs/daily_logs/2026-03-28-29_day19.md)
-
----
-
+- [Day 20: 决策模块全面构建与优化](docs/daily_logs/2026-03-30-31_day20.md)
+```

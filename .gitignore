@@ -88,3 +88,15 @@ versions/v2_holiday_sector/temp_model_*.pth
 results/
 checkpoints/
 logs/
+
+# 实验临时文件和旧测试脚本（不提交）
+docs/daily_logs/day4_changes_log.txt
+experiments/barcelona_nodes.html
+experiments/day5_dasbord_test.py
+experiments/federated/
+experiments/fedprox_results_20260319_130114.txt
+experiments/model_registry.json
+experiments/models/
+experiments/monitoring/
+experiments/scripts/
+experiments/utils/
