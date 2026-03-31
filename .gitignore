@@ -82,3 +82,9 @@ tools/
 
 # 文档中的临时文件
 docs/daily_logs/*.log
+# 运行时生成的临时模型和结果（不应提交）
+versions/v2_holiday_sector/results/
+versions/v2_holiday_sector/temp_model_*.pth
+results/
+checkpoints/
+logs/

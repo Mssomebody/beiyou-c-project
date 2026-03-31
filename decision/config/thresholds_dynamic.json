@@ -1,0 +1,52 @@
+{
+  "thresholds": [
+    {
+      "hour_code": 0,
+      "is_holiday": 0,
+      "low": 282.0,
+      "high": 51062.19999999999
+    },
+    {
+      "hour_code": 1,
+      "is_holiday": 0,
+      "low": 561.0,
+      "high": 78280.10000000003
+    },
+    {
+      "hour_code": 2,
+      "is_holiday": 0,
+      "low": 594.0,
+      "high": 88058.40000000002
+    },
+    {
+      "hour_code": 3,
+      "is_holiday": 0,
+      "low": 394.0,
+      "high": 74893.80000000002
+    },
+    {
+      "hour_code": 0,
+      "is_holiday": 1,
+      "low": 0.0,
+      "high": 0.0
+    },
+    {
+      "hour_code": 1,
+      "is_holiday": 1,
+      "low": 0.0,
+      "high": 0.0
+    },
+    {
+      "hour_code": 2,
+      "is_holiday": 1,
+      "low": 0.0,
+      "high": 0.0
+    },
+    {
+      "hour_code": 3,
+      "is_holiday": 1,
+      "low": 0.0,
+      "high": 0.0
+    }
+  ]
+}

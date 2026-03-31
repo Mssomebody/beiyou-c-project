@@ -1,0 +1,24 @@
+时段权重 (按顺序 00-06,06-12,12-18,18-24): [0.001626007491722703, 0.0022127905394881964, 0.0047495076432824135, 0.022110719233751297]
+加载巴塞罗那节点...
+Loaded 1021 samples from D:\Desk\desk\beiyou_c_project\data\processed\barcelona_ready_2019_2022\node_8001\train.pkl
+Loaded 1021 samples from D:\Desk\desk\beiyou_c_project\data\processed\barcelona_ready_2019_2022\node_8002\train.pkl
+Loaded 218 samples from D:\Desk\desk\beiyou_c_project\data\processed\barcelona_ready_2019_2022\node_8001\test.pkl
+Loaded 218 samples from D:\Desk\desk\beiyou_c_project\data\processed\barcelona_ready_2019_2022\node_8002\test.pkl
+巴塞罗那节点数: 2
+加载清华聚类组...
+清华聚类组数: 10
+总客户端数: 12
+Round 1: avg_train_loss = 0.309621
+Round 2: avg_train_loss = 0.392107
+Round 3: avg_train_loss = 0.424020
+Round 4: avg_train_loss = 0.422523
+Round 5: avg_train_loss = 0.422240
+Round 6: avg_train_loss = 0.419163
+Round 7: avg_train_loss = 0.415410
+Round 8: avg_train_loss = 0.419799
+Round 9: avg_train_loss = 0.426344
+Round 10: avg_train_loss = 0.420374
+预测值范围: [0.1416, 0.4747]
+目标值范围: [0.0063, 1.3621]
+
+最终 sMAPE: 29.87%
