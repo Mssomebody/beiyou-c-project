@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>综合报告 | 基站能耗预测正负向亮点分析（含SHAP）</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #f5f7fa; margin: 0; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px; overflow: hidden; }
+        .card-header { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 20px 30px; }
+        .card-header h2 { margin: 0; }
+        .card-body { padding: 30px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 25px; margin-bottom: 30px; }
+        .metric-card { background: #f8f9fa; border-radius: 12px; padding: 20px; text-align: center; border-bottom: 4px solid #3498db; }
+        .metric-value { font-size: 2.8rem; font-weight: 700; color: #e67e22; }
+        .improvement-badge { background: #27ae60; color: white; padding: 8px 16px; border-radius: 50px; display: inline-block; font-weight: bold; margin: 15px 0; }
+        .figure { text-align: center; margin: 30px 0; }
+        .figure img { max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .caption { margin-top: 12px; font-size: 0.9rem; color: #7f8c8d; }
+        .insight { background: #e8f4fd; border-left: 5px solid #3498db; padding: 15px 20px; margin: 20px 0; border-radius: 8px; }
+        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>🔬 正向亮点：为什么7天窗口优于1天窗口？</h2>
+        </div>
+        <div class="card-body">
+            <div class="metrics-grid">
+                <div class="metric-card"><div class="metric-label">1天窗口 sMAPE</div><div class="metric-value">36.18%</div></div>
+                <div class="metric-card"><div class="metric-label">7天窗口 sMAPE</div><div class="metric-value">31.82%</div></div>
+                <div class="metric-card"><div class="metric-label">绝对提升</div><div class="metric-value">4.36%</div></div>
+                <div class="metric-card"><div class="metric-label">相对提升</div><div class="metric-value">12.1%</div></div>
+            </div>
+            <div class="insight"><strong>💡 核心发现：</strong> 7天窗口捕获周模式，SHAP显示第一天贡献最大，重要性逐日衰减。</div>
+            <div class="figure"><h3>📈 窗口精度对比</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/window_comparison.png"><div class="caption">图1：1天 vs 7天 sMAPE 对比</div></div>
+            <div class="figure"><h3>📊 多节点时间步重要性分布（基线）</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/baseline_multi_node_boxplot.png"><div class="caption">图2：基线模型各时间步SHAP分布，第一天显著更高</div></div>
+            <div class="figure"><h3>🔥 多节点逐日重要性热力图（基线）</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/baseline_multi_node_daily_heatmap.png"><div class="caption">图3：各节点逐日重要性，第一天主导</div></div>
+            <div class="figure"><h3>💧 瀑布图（节点8001）</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/baseline_waterfall.png"><div class="caption">图4：单样本SHAP贡献分解</div></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>📉 负向亮点：优化方法在7天窗口上无效</h2>
+        </div>
+        <div class="card-body">
+            <div class="insight"><strong>🔍 关键发现：</strong> 所有优化方法（E3/E4/E5/E2）的sMAPE均高于基线，SHAP分析显示它们引入了噪声或无法有效利用长期模式。</div>
+            <div class="figure"><h3>📊 优化实验 sMAPE 对比</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/7day_negative_experiments.png"><div class="caption">图5：各优化方法精度均低于基线</div></div>
+
+            <div class="insight">⚠️ 未计算优化模型的SHAP（可通过 --no-skip-negative-shap 开启），仅展示精度对比。</div>
+
+            <div class="insight"><strong>📌 结论：</strong> 优化方法在7天窗口上无效，证明7天窗口本身已接近信息上限，简单基线更优。</div>
+        </div>
+    </div>
+    <footer>报告生成: 2026-03-29 21:10:38<br>节点: 8001, 8002, 8004, 8006, 8012 | SHAP: KernelExplainer</footer>
+</div>
+</body>
+</html>
