@@ -1,0 +1,33 @@
+{
+  "config": {
+    "data_version": "old",
+    "data_path": "D:\\Desk\\desk\\beiyou_c_project\\data\\processed\\barcelona_ready_2019_2022",
+    "nodes": [
+      8001,
+      8002,
+      8005
+    ],
+    "n_nodes": 3,
+    "max_rounds": 10,
+    "local_epochs": 5,
+    "early_stop_patience": 10,
+    "lr_scheduler_patience": 5,
+    "lr_scheduler_factor": 0.5,
+    "mu_min": 0.0,
+    "mu_max": 0.1,
+    "n_trials": 1,
+    "seed": 42
+  },
+  "best_mu": 0.07924960579821132,
+  "best_smape": 103.04161071777344,
+  "trials": [
+    {
+      "number": 0,
+      "value": 103.04161071777344,
+      "params": {
+        "mu": 0.07924960579821132
+      },
+      "datetime": "2026-03-25 22:26:58.212750"
+    }
+  ]
+}

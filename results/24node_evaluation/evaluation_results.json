@@ -1,0 +1,48 @@
+{
+  "model_path": "D:/Desk/desk/beiyou_c_project/results/beautified/federated_nodes24_rounds30_mu0.1_model_20260323_063955.pth",
+  "data_version": "old",
+  "node_count": 24,
+  "node_ids": [
+    8001,
+    8002,
+    8003,
+    8004,
+    8005,
+    8006,
+    8007,
+    8008,
+    8009,
+    8010,
+    8011,
+    8012,
+    8013,
+    8014,
+    8015,
+    8016,
+    8017,
+    8018,
+    8019,
+    8020,
+    8021,
+    8022,
+    8023,
+    8024
+  ],
+  "smape_all": 163.5370635986328,
+  "smape_high": 124.96697998046875,
+  "mae": 0.8705794811248779,
+  "pred_range": [
+    -0.0554426908493042,
+    0.30172935128211975
+  ],
+  "target_range": [
+    -2.0947515964508057,
+    8.190903663635254
+  ],
+  "model_params": {
+    "input_size": 7,
+    "hidden_size": 192,
+    "num_layers": 2,
+    "output_size": 4
+  }
+}
