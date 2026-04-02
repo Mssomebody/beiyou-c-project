@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-联邦预训练 - 旧口径41节点（可学习时段版本）
+联邦预训练 - 旧口径41节点（高精度优化版，带损失记录）
 - 使用原始 Valor 列，按节点 MinMax 归一化
-- 加入可学习时段权重（hour_weights），对每个时间步的输入特征加权
 - 评估时反归一化计算真实 sMAPE
 - 支持断点续训、最佳模型保存、学习率调度、早停
+- 每轮记录 train_loss 和 val_smape 到 results/two_stage/loss_history.csv
 - 超参数：hidden_dim=128, lr=0.002, mu=0.01, local_epochs=10, rounds=100
 """
 
@@ -34,9 +34,10 @@ MINMAX_FILE = PROJECT_ROOT / "versions" / "v2_holiday_sector" / "node_minmax.pkl
 OLD_DATA_DIR = PROJECT_ROOT / "data" / "processed" / "barcelona_ready_v1"
 
 # 输出
-OUTPUT_MODEL = PROJECT_ROOT / "results" / "two_stage" / "model_fed_pretrain_learnable.pth"
-CHECKPOINT_DIR = PROJECT_ROOT / "results" / "two_stage" / "checkpoints_learnable"
-LOG_FILE = PROJECT_ROOT / "results" / "two_stage" / "pretrain_learnable_log.txt"
+OUTPUT_MODEL = PROJECT_ROOT / "results" / "two_stage" / "model_fed_pretrain.pth"
+CHECKPOINT_DIR = PROJECT_ROOT / "results" / "two_stage" / "checkpoints"
+LOG_FILE = PROJECT_ROOT / "results" / "two_stage" / "pretrain_log.txt"
+LOSS_HISTORY = PROJECT_ROOT / "results" / "two_stage" / "loss_history.csv"
 
 # 模型参数
 INPUT_DIM = 7
@@ -71,7 +72,7 @@ def set_seed(seed=42):
         torch.cuda.manual_seed_all(seed)
 
 # ============================================================
-# 数据集：返回原始特征和 hour_code 序列
+# 数据集：使用原始 Valor 和节点 MinMax 参数归一化
 # ============================================================
 class MinMaxBarcelonaDataset(Dataset):
     def __init__(self, data_path: Path, node_id: int, node_minmax: Dict[int, Tuple[float, float]],
@@ -85,7 +86,6 @@ class MinMaxBarcelonaDataset(Dataset):
         self.sector_onehot = self._one_hot_sector(sector_codes)
         self.holiday = self.df['is_holiday'].values
         self.weekend = self.df['is_weekend'].values
-        self.hour_code = self.df['hour_code'].values
         self.indices = self._build_indices()
 
     def _one_hot_sector(self, codes):
@@ -108,8 +108,7 @@ class MinMaxBarcelonaDataset(Dataset):
 
     def __getitem__(self, idx):
         start = self.indices[idx]
-
-        # 输入特征（7维）
+        # 输入特征
         x_energy = self.energy[start:start+self.window_size]
         x_energy = (x_energy - self.data_min) / (self.data_max - self.data_min + 1e-8)
         x_energy = torch.FloatTensor(x_energy).unsqueeze(-1)
@@ -124,41 +123,34 @@ class MinMaxBarcelonaDataset(Dataset):
         x_weekend = self.weekend[start:start+self.window_size]
         x_weekend = torch.FloatTensor(x_weekend).unsqueeze(-1)
 
-        x = torch.cat([x_energy, x_sector, x_holiday, x_weekend], dim=1)  # (window_size, 7)
-
-        # hour_code 序列
-        hour_seq = self.hour_code[start:start+self.window_size]
-        hour_seq = torch.LongTensor(hour_seq)
+        x = torch.cat([x_energy, x_sector, x_holiday, x_weekend], dim=1)
 
         # 目标（归一化）
         y = self.energy[start+self.window_size:start+self.window_size+self.predict_size]
         y = (y - self.data_min) / (self.data_max - self.data_min + 1e-8)
         y = torch.FloatTensor(y)
 
-        return x, y, hour_seq
+        return x, y
 
 
 # ============================================================
-# 可学习时段模型
+# 模型定义
 # ============================================================
-class LearnableHourLSTM(nn.Module):
+class LSTMPredictor(nn.Module):
     def __init__(self, input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM,
                  num_layers=NUM_LAYERS, output_dim=OUTPUT_DIM, dropout=DROPOUT):
         super().__init__()
-        self.hour_weights = nn.Parameter(torch.ones(4))
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout)
         self.fc = nn.Linear(hidden_dim, output_dim)
 
-    def forward(self, x, hour_seq):
-        weights = self.hour_weights[hour_seq].unsqueeze(-1)
-        x_weighted = x * weights
-        out, _ = self.lstm(x_weighted)
+    def forward(self, x):
+        out, _ = self.lstm(x)
         last_out = out[:, -1, :]
         return self.fc(last_out)
 
 
 # ============================================================
-# 联邦训练器（适配可学习时段模型）
+# 联邦训练器
 # ============================================================
 class FederatedTrainer:
     def __init__(self, config):
@@ -169,7 +161,7 @@ class FederatedTrainer:
         self.start_round = 1
 
     def create_model(self):
-        return LearnableHourLSTM()
+        return LSTMPredictor()
 
     def train_round(self, model, client_loaders, mu):
         client_weights = []
@@ -185,10 +177,10 @@ class FederatedTrainer:
             local_loss = 0.0
             for _ in range(self.config.local_epochs):
                 epoch_loss = 0.0
-                for x, y, hour_seq in loader:
-                    x, y, hour_seq = x.to(self.device), y.to(self.device), hour_seq.to(self.device)
+                for x, y in loader:
+                    x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
-                    output = local_model(x, hour_seq)
+                    output = local_model(x)
                     loss = criterion(output, y)
                     if mu > 0:
                         prox_loss = 0.0
@@ -221,9 +213,9 @@ class FederatedTrainer:
         with torch.no_grad():
             for node_id, loader in loaders.items():
                 data_min, data_max = node_minmax[node_id]
-                for x, y, hour_seq in loader:
-                    x, hour_seq = x.to(self.device), hour_seq.to(self.device)
-                    pred_norm = model(x, hour_seq).cpu().numpy()
+                for x, y in loader:
+                    x, y = x.to(self.device), y.to(self.device)
+                    pred_norm = model(x).cpu().numpy()
                     target_norm = y.cpu().numpy()
                     if real_space:
                         pred = pred_norm * (data_max - data_min) + data_min
@@ -243,6 +235,7 @@ class FederatedTrainer:
     def train(self, client_train_loaders, client_val_loaders, node_minmax, rounds, mu):
         model = self.create_model().to(self.device)
 
+        # 查找最新检查点
         CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
         checkpoint_files = list(CHECKPOINT_DIR.glob("round_*.pth"))
         if checkpoint_files:
@@ -258,13 +251,24 @@ class FederatedTrainer:
         optimizer = torch.optim.Adam(model.parameters(), lr=self.config.lr)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
 
+        # 初始化损失记录文件
+        LOSS_HISTORY.parent.mkdir(parents=True, exist_ok=True)
+        if self.start_round == 1:
+            with open(LOSS_HISTORY, 'w') as f:
+                f.write("round,train_loss,val_smape\n")
+
         for round_num in range(self.start_round, rounds + 1):
             model, avg_loss = self.train_round(model, client_train_loaders, mu)
             val_smape = self.evaluate_smape(model, client_val_loaders, node_minmax, real_space=True)
             logger.info(f"Round {round_num:3d}: train_loss = {avg_loss:.6f}, val_smape = {val_smape:.2f}%")
 
+            # 记录损失
+            with open(LOSS_HISTORY, 'a') as f:
+                f.write(f"{round_num},{avg_loss:.6f},{val_smape:.2f}\n")
+
             scheduler.step(val_smape)
 
+            # 保存检查点
             torch.save({
                 'round': round_num,
                 'model_state_dict': model.state_dict(),
@@ -272,6 +276,7 @@ class FederatedTrainer:
                 'val_smape': val_smape
             }, CHECKPOINT_DIR / f"round_{round_num}.pth")
 
+            # 早停
             if val_smape < self.best_val_smape - 0.01:
                 self.best_val_smape = val_smape
                 self.patience_counter = 0
@@ -283,6 +288,7 @@ class FederatedTrainer:
                     logger.info(f"早停触发，停止于第 {round_num} 轮")
                     break
 
+        # 加载最佳模型
         model.load_state_dict(torch.load(self.config.output_model))
         return model, self.best_val_smape
 
@@ -309,7 +315,7 @@ def load_node_loaders(node_ids: List[int], data_dir: Path, node_minmax: Dict,
 # 主函数
 # ============================================================
 def main():
-    parser = argparse.ArgumentParser(description="联邦预训练（可学习时段）")
+    parser = argparse.ArgumentParser(description="联邦预训练（高精度优化版）")
     parser.add_argument('--rounds', type=int, default=100, help='通信轮数')
     parser.add_argument('--local_epochs', type=int, default=10, help='本地训练轮数')
     parser.add_argument('--lr', type=float, default=0.002, help='学习率')
@@ -323,21 +329,25 @@ def main():
     set_seed(args.seed)
 
     logger.info("=" * 60)
-    logger.info("联邦预训练（可学习时段）启动")
+    logger.info("联邦预训练（高精度优化版）启动")
     logger.info(f"设备: {args.device}")
     logger.info(f"通信轮数: {args.rounds}, 本地轮数: {args.local_epochs}")
     logger.info(f"学习率: {args.lr}, FedProx μ: {args.mu}")
     logger.info(f"隐藏层维度: {HIDDEN_DIM}")
     logger.info("=" * 60)
 
+    # 1. 加载节点 MinMax 参数
     if not MINMAX_FILE.exists():
         logger.error(f"MinMax 参数文件不存在: {MINMAX_FILE}")
         sys.exit(1)
     with open(MINMAX_FILE, 'rb') as f:
         node_minmax = pickle.load(f)
-    node_ids = list(node_minmax.keys())
-    logger.info(f"加载 {len(node_ids)} 个节点的 MinMax 参数")
+    node_ids = list(node_minmax.keys())  # 41个节点
+    # 测试模式：只取前5个节点
+    node_ids = node_ids[:5]
+    logger.info(f"加载 {len(node_ids)} 个节点的 MinMax 参数 (测试模式: 仅前5个)")
 
+    # 2. 加载旧口径数据
     if not OLD_DATA_DIR.exists():
         logger.error(f"旧口径数据目录不存在: {OLD_DATA_DIR}")
         sys.exit(1)
@@ -351,6 +361,7 @@ def main():
         logger.error("数据加载失败，请检查数据完整性")
         sys.exit(1)
 
+    # 3. 创建训练器并开始训练
     trainer = FederatedTrainer(args)
     model, best_val_smape = trainer.train(train_loaders, val_loaders, node_minmax, args.rounds, args.mu)
 

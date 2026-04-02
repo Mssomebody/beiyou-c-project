@@ -127,9 +127,7 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 | **决策脚本** | 统一决策引擎（支持1天/7天窗口） | `decision/scripts/run_decision.py` | ✅ 已开发 |
 | | 节点参数生成脚本 | `decision/scripts/generate_node_weighted_params_monthly.py` | ✅ 已执行 |
 | | 电价/碳排提取脚本 | `decision/scripts/extract_eurostat_prices_v2.py` | ✅ 已开发 |
-| **一天窗口扩展** | 一天窗口基线（预训练+微调） | `versions/v2_holiday_sector/train_federated_pretrain_1day.py`<br>`versions/v2_holiday_sector/train_federated_finetune_1day.py` | ✅ 已开发 |
-| | 一天窗口可学习时段 | `versions/v2_holiday_sector/train_sliding_learnable_hour_1day.py`<br>`versions/v2_holiday_sector/train_federated_finetune_learnable_1day.py` | ✅ 已开发 |
-| **预训练** | 41节点7天窗口预训练 | 脚本 `versions/v2_holiday_sector/train_federated_pretrain.py` 已就绪 | 📋 待启动 |
+| **预训练** | 41节点7天窗口预训练（优化版） | `versions/v2_holiday_sector/train_federated_pretrain.py` | 🔄 进行中（5节点验证） |
 | **微调** | 7天窗口微调（优化版） | `versions/v2_holiday_sector/train_federated_finetune_optimized.py` | ✅ 已开发 |
 | **决策输出** | 节能量化结果（CSV/JSON）及图表 | `decision/outputs/`（待生成） | ⏳ 模型完成后运行 |
 
@@ -200,63 +198,31 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 
 ```
 beiyou_c_project/
-├── decision/                              # 决策模块（新增）
-│   ├── config/
-│   │   ├── node_weighted_params_monthly.csv
-│   │   ├── thresholds_dynamic.json
-│   │   ├── thresholds.json
-│   │   ├── eurostat_prices.csv
-│   │   └── spanish_carbon_intensity.csv
-│   ├── models/                            # 待存放微调后模型
-│   ├── outputs/                           # 决策结果（CSV/JSON/图表）
-│   ├── scripts/
-│   │   ├── run_decision.py
-│   │   ├── generate_node_weighted_params_monthly.py
-│   │   └── extract_eurostat_prices_v2.py
-│   └── data/                              # 原始数据备份
-│       └── monthly_full_release_long_format.csv
-├── data/processed/
-│   ├── barcelona_ready/                   # 原始6小时数据
-│   ├── barcelona_ready_v1/                # v1 预处理数据
-│   ├── barcelona_ready_2019_2022/         # 旧口径数据
-│   ├── barcelona_ready_2023_2025/         # 新口径数据
-│   ├── tsinghua/                          # 清华原始数据（30分钟）
-│   ├── tsinghua_6h/                       # 降采样为6小时后的清华数据
-│   ├── tsinghua_full/                     # 完整清华数据
-│   └── tsinghua_v2/                       # 清华数据第二版
-├── results/
-│   ├── beautified/                        # 各类训练曲线、预测图
-│   ├── barcelona_clustering/              # 节点聚类结果
-│   ├── barcelona_weights/                 # 4G/5G 权重可视化
-│   ├── shap_analysis/                     # SHAP 分析旧结果
-│   ├── shap_comparison/                   # 4G/5G SHAP 对比
-│   ├── figures/                           # 最新 SHAP 分析图表（五节点）
-│   ├── shap_arrays/                       # SHAP 数组（用于快速重绘）
+├── decision/                              # 决策模块
+│   ├── config/                            # 决策配置文件
+│   ├── scripts/                           # 决策脚本
+│   ├── models/                            # 存放微调模型（待生成）
+│   ├── outputs/                           # 决策结果（待生成）
+│   └── data/                              # 原始电价数据备份
+├── data/processed/                        # 预处理数据
+│   ├── barcelona_ready_v1/                # 旧口径数据（2019-2022）
+│   ├── barcelona_ready_2023_2025/         # 新口径数据（2023-2025）
+│   └── tsinghua_6h/                       # 清华数据（降采样6小时）
+├── results/                               # 实验结果
+│   ├── figures/                           # SHAP分析图表
+│   ├── shap_arrays/                       # SHAP数组
 │   ├── reports/                           # 综合报告
-│   │   └── comprehensive_report.html
-│   └── two_stage/                         # 预训练/微调日志与中间模型
-├── versions/
-│   └── v2_holiday_sector/                 # 主要工作区
-│       ├── batch_shap_by_cluster.py               # 批量 SHAP 分析（23节点）
-│       ├── shap_window_comparison_optimized.py    # 单节点 SHAP 分析
-│       ├── comprehensive_final.py                 # 综合正负向 SHAP 分析
-│       ├── train_federated_pretrain.py            # 七天窗口预训练
-│       ├── train_federated_finetune_optimized.py  # 七天窗口微调（优化版）
-│       ├── train_federated_pretrain_1day.py       # 一天窗口预训练
-│       ├── train_federated_finetune_1day.py       # 一天窗口微调
-│       ├── train_sliding_learnable_hour_1day.py   # 一天窗口可学习时段预训练
-│       ├── train_federated_finetune_learnable_1day.py # 一天窗口可学习时段微调
-│       ├── model_1day_5nodes.pth                  # 1天窗口五节点模型
-│       ├── model_7day_5nodes.pth                  # 7天窗口五节点基线模型
-│       ├── model_7day_e2_5nodes.pth               # E2 模型
-│       ├── model_7day_e3_5nodes.pth               # E3 模型
-│       ├── model_7day_e4_5nodes.pth               # E4 模型
-│       ├── model_7day_e5_5nodes.pth               # E5 模型
-│       └── results/                               # SHAP 中间结果
-├── configs/                                 # 配置文件
-├── experiments/                             # 实验脚本
-├── scripts/                                 # 辅助脚本
-└── tools/                                   # 工具（含 ADB）
+│   └── two_stage/                         # 预训练/微调日志与模型
+├── versions/v2_holiday_sector/            # 主要工作区
+│   ├── train_federated_pretrain.py        # 七天窗口预训练（优化版）
+│   ├── train_sliding_learnable_hour.py    # 可学习时段预训练
+│   ├── train_federated_finetune_optimized.py  # 微调脚本
+│   ├── shap_window_comparison_optimized.py    # SHAP窗口分析
+│   ├── comprehensive_final.py                 # 综合SHAP分析
+│   └── model_*_5nodes.pth                    # 五节点模型权重
+├── configs/                               # 配置文件
+├── experiments/                           # 实验脚本
+└── tools/                                 # 工具（ADB等）
 ```
 
 ---
@@ -361,12 +327,12 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 
 | 优先级 | 任务 | 预期成果 | 状态 |
 |:---:|:---|:---|:---:|
-| P0 | 启动41节点7天窗口预训练 | 预训练模型 `results/two_stage/model_fed_pretrain.pth` | 📋 脚本已就绪，待执行 |
+| P0 | 完成5节点可学习时段验证 | 确定最优预训练结构 | 🔄 进行中（第2轮已优于基线） |
+| P0 | 全量42节点预训练（可学习时段） | 预训练模型 `results/two_stage/model_fed_pretrain.pth` | 📋 待启动 |
 | P0 | 运行优化微调 | 微调模型 `decision/models/model_fed_finetune.pth` | 📋 预训练后执行 |
 | P0 | 运行决策脚本 | 节能量化结果（CSV/JSON）及图表 | 📋 模型完成后 |
-| P1 | 一天窗口模型训练与对比 | 一天窗口基线/可学习时段模型 | 📋 按需执行 |
-| P2 | 概念漂移检测（ADWIN） | 检测预测误差突变点，增强自适应能力 | 📋 可选创新点 |
-| P3 | Streamlit 可视化仪表盘 | 集成决策结果与图表 | 📋 最终展示 |
+| P1 | Streamlit 交互式仪表盘 | 动态展示预测与决策 | 📋 可选 |
+| P2 | 概念漂移检测（ADWIN） | 增强模型自适应能力 | 📋 可选创新点 |
 
 ---
 
@@ -384,5 +350,6 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 - [Day 17: 粒度融合完成与基线对比](docs/daily_logs/2026-03-26_day17.md)
 - [Day 18: SHAP 窗口分析 + 多节点批量框架搭建](docs/daily_logs/2026-03-27_day18.md)
 - [Day 19: 五节点七日窗口实验完成 + 正负向综合分析](docs/daily_logs/2026-03-28-29_day19.md)
-- [Day 20: 决策模块全面构建与优化](docs/daily_logs/2026-03-30-31_day20.md)
+- [Day 20-21: 决策模块全面构建与优化](docs/daily_logs/2026-03-30-31_day20-21.md)
+- [Day 22-23: 预训练超参数调优与可学习时段验证](docs/daily_logs/2026-04-01-02_day22-23.md)
 ```

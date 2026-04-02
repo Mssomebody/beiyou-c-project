@@ -1,84 +1,40 @@
-"""
-快速测试分口径数据（用Trial 3的最佳参数）
-"""
 import sys
-import os
+sys.path.insert(0, '.')
+from train_federated_pretrain import FederatedTrainer, load_node_loaders, MinMaxBarcelonaDataset
+import pickle
+from pathlib import Path
 import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# 只取2个节点
+node_ids = [8001, 8002]
+data_dir = Path('data/processed/barcelona_ready_v1')
+with open('versions/v2_holiday_sector/node_minmax.pkl', 'rb') as f:
+    node_minmax = pickle.load(f)
 
-from src.data_loader.barcelona_dataset_v1 import BarcelonaDataset
-from experiments.beautified.train_single_node import LSTMPredictor, train_epoch, evaluate
+# 自定义加载函数，只取每个数据集的前200个样本
+def load_small_loaders(node_ids, data_dir, node_minmax, split, batch_size=8):
+    loaders = {}
+    for node_id in node_ids:
+        pkl_file = data_dir / f'node_{node_id}' / f'{split}.pkl'
+        if not pkl_file.exists():
+            continue
+        full_ds = MinMaxBarcelonaDataset(pkl_file, node_id, node_minmax)
+        # 切片取前200个样本
+        small_ds = torch.utils.data.Subset(full_ds, range(min(200, len(full_ds))))
+        loader = torch.utils.data.DataLoader(small_ds, batch_size=batch_size, shuffle=(split=='train'))
+        loaders[node_id] = loader
+    return loaders
 
-# 修改这里选择口径
-DATA_PATH = r"D:\Desk\desk\beiyou_c_project\data\processed\barcelona_ready_2023_2025"
-# DATA_PATH = r"D:\Desk\desk\beiyou_c_project\data\processed\barcelona_ready_2023_2025"
+train_loaders = load_small_loaders(node_ids, data_dir, node_minmax, 'train')
+val_loaders = load_small_loaders(node_ids, data_dir, node_minmax, 'val')
 
-NODE_ID = 8001
-BATCH_SIZE = 64
-HIDDEN = 160
-LAYERS = 4
-LR = 0.00572
-DROPOUT = 0.16
-EPOCHS = 20
-
-def get_loaders(node_id, batch_size, data_path):
-    # 尝试两种节点名格式
-    data_dir1 = os.path.join(data_path, f"node_{node_id}")
-    data_dir2 = os.path.join(data_path, f"node_{node_id}.0")
-    
-    if os.path.exists(data_dir1):
-        data_dir = data_dir1
-    elif os.path.exists(data_dir2):
-        data_dir = data_dir2
-    else:
-        raise FileNotFoundError(f"找不到节点目录: {data_dir1} 或 {data_dir2}")
-    
-    train_dataset = BarcelonaDataset(os.path.join(data_dir, "train.pkl"))
-    val_dataset = BarcelonaDataset(os.path.join(data_dir, "val.pkl"))
-    test_dataset = BarcelonaDataset(os.path.join(data_dir, "test.pkl"))
-    
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
-    
-    return train_loader, val_loader, test_loader
-
-print("="*50)
-print(f"数据路径: {DATA_PATH}")
-print("="*50)
-
-train_loader, val_loader, test_loader = get_loaders(NODE_ID, BATCH_SIZE, DATA_PATH)
-
-# 获取输入维度
-sample_x, _ = train_loader.dataset[0]
-input_dim = sample_x.shape[1]
-print(f"输入维度: {input_dim}")
-
-model = LSTMPredictor(
-    input_dim=input_dim,
-    hidden_dim=HIDDEN,
-    num_layers=LAYERS,
-    output_dim=4,
-    dropout=DROPOUT
-)
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model.to(device)
-
-optimizer = torch.optim.Adam(model.parameters(), lr=LR)
-criterion = nn.MSELoss()
-
-print(f"\n开始训练 {EPOCHS} 轮...")
-print("-"*50)
-
-for epoch in range(EPOCHS):
-    train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
-    val_loss = evaluate(model, val_loader, criterion, device)
-    print(f"Epoch {epoch+1:2d}: train_loss={train_loss:.6f}, val_loss={val_loss:.6f}")
-
-test_loss = evaluate(model, test_loader, criterion, device)
-print("-"*50)
-print(f"测试损失: {test_loss:.6f}")
+class Args:
+    device = 'cpu'
+    lr = 0.002
+    local_epochs = 2
+    rounds = 3
+    output_model = 'quick_test.pth'
+args = Args()
+trainer = FederatedTrainer(args)
+model, best_smape = trainer.train(train_loaders, val_loaders, node_minmax, rounds=3, mu=0.01)
+print(f"快速测试完成，最佳验证sMAPE: {best_smape:.2f}%")
