@@ -1,102 +1,57 @@
-# Python
+# 数据文件
+data/
+fl_data/
+*.csv
+*.xlsx
+*.pkl
+*.npy
+
+# 模型权重
+*.pth
+*.pt
+*.h5
+*.onnx
+
+# 日志和输出
+*.log
+*.txt
+*.json
+*.db
+*.html
+*.png
+*.jpg
+*.gif
+*.pickle
+*.npy
+
+# 备份和临时目录
+backup_*/
+decision/analysis_outputs/
+decision/ensemble_outputs/
+decision/outputs/
+decision/models/
+results/
 __pycache__/
 *.pyc
 *.pyo
 
-# 备份文件
-*.bak
-*.bak*
-*.swp
-*~
+# 实验脚本输出
+experiments/*/__pycache__/
+versions/v2_holiday_sector/__pycache__/
+
+# 环境
+.env
+venv/
+.venv/
+ENV/
+env/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
-
-# 临时文件
-*.tmp
-nohup.out
-
-# 环境
-venv/
-env/
-ENV/
-
-# 原始数据（不提交）
-data/
-fl_data/
-decision/data/
-
-# 决策模块运行时输出（不提交）
-decision/outputs/
-
-# 实验结果目录：忽略大文件，但保留图表、报告、SHAP数组（可选）和关键日志
-results/__pycache__/
-results/*.pth
-results/*.pkl
-results/*.npy
-results/*.log
-results/*.db
-# 保留重要子目录（图表、报告、SHAP数组）
-!results/figures/
-!results/reports/
-!results/shap_arrays/
-
-# 版本目录：忽略缓存、备份、临时文件，但保留代码、模型、日志
-versions/*/__pycache__/
-versions/*/*.pyc
-versions/*/backup_7day/
-versions/*/experiments/
-versions/*/scripts/
-versions/*/src/
-versions/*/configs/
-# 忽略版本目录下的大型临时文件，但保留最终模型和日志
-versions/*/*.log
-versions/*/*.db
-versions/*/*.tmp
-# 如果模型文件较大，可取消注释下面行以忽略，但建议保留小型最终模型
-# versions/*/*.pth
-# versions/*/*.pkl
-# versions/*/*.npy
-
-# 实验目录：忽略备份和临时文件，但保留重要日志
-experiments/archive/
-experiments/debug/
-experiments/legacy/
-experiments/preprocess/
-experiments/tests/
-experiments/*backup*
-experiments/*_backup*.py
-experiments/*_backup*.txt
-# 但保留关键日志（如 *.log，如果重要）
-!experiments/*.log
-!versions/v2_holiday_sector/*.log
-
-# 其他临时目录
-temp_netdata/
-tools/
-
-# 文档中的临时文件
-docs/daily_logs/*.log
-# 运行时生成的临时模型和结果（不应提交）
-versions/v2_holiday_sector/results/
-versions/v2_holiday_sector/temp_model_*.pth
-results/
-checkpoints/
-logs/
-
-# 实验临时文件和旧测试脚本（不提交）
-docs/daily_logs/day4_changes_log.txt
-experiments/barcelona_nodes.html
-experiments/day5_dasbord_test.py
-experiments/federated/
-experiments/fedprox_results_20260319_130114.txt
-experiments/model_registry.json
-experiments/models/
-experiments/monitoring/
-experiments/scripts/
-experiments/utils/

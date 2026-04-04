@@ -1,23 +1,0 @@
-nohup: ignoring input
-[I 2026-03-21 12:12:23,620] A new study created in memory with name: fedgreen_bayesian_full
-============================================================
-Step 3: 完整版 Optuna 贝叶斯优化
-试验次数: 50
-搜索超参数:
-  - hidden_dim: 32-512
-  - num_layers: 1-5
-  - lr: 1e-5 ~ 1e-2
-  - dropout: 0.1-0.6
-  - batch_size: 16,32,64,128,256
-  - optimizer: Adam, AdamW, SGD
-  - scheduler: plateau, cosine, none
-  - grad_clip: 0.1-5.0
-============================================================
-
-开始优化...
-预计时间: 8-16 小时
-------------------------------------------------------------
-  0%|          | 0/50 [00:00<?, ?it/s]                                        0%|          | 0/50 [37:48<?, ?it/s]Best trial: 0. Best value: 54.6564:   0%|          | 0/50 [37:48<?, ?it/s]Best trial: 0. Best value: 54.6564:   2%|▏         | 1/50 [37:48<30:52:54, 2268.86s/it]                                                                                       Best trial: 0. Best value: 54.6564:   2%|▏         | 1/50 [1:06:27<30:52:54, 2268.86s/it]Best trial: 0. Best value: 54.6564:   2%|▏         | 1/50 [1:06:27<30:52:54, 2268.86s/it]Best trial: 0. Best value: 54.6564:   4%|▍         | 2/50 [1:06:27<25:56:14, 1945.31s/it]D:\DownLoad\python\Lib\site-packages\torch\nn\modules\rnn.py:990: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.15407665789711203 and num_layers=1
-  super().__init__("LSTM", *args, **kwargs)
-                                                                                         Best trial: 0. Best value: 54.6564:   4%|▍         | 2/50 [1:22:58<25:56:14, 1945.31s/it]Best trial: 0. Best value: 54.6564:   4%|▍         | 2/50 [1:22:58<25:56:14, 1945.31s/it]Best trial: 0. Best value: 54.6564:   6%|▌         | 3/50 [1:22:58<19:42:25, 1509.47s/it]                                                                                         Best trial: 0. Best value: 54.6564:   6%|▌         | 3/50 [1:39:12<19:42:25, 1509.47s/it]Best trial: 0. Best value: 54.6564:   6%|▌         | 3/50 [1:39:12<19:42:25, 1509.47s/it]Best trial: 0. Best value: 54.6564:   8%|▊         | 4/50 [1:39:12<16:35:11, 1298.08s/it]                                                                                         Best trial: 0. Best value: 54.6564:   8%|▊         | 4/50 [2:45:21<16:35:11, 1298.08s/it]Best trial: 0. Best value: 54.6564:   8%|▊         | 4/50 [2:45:21<16:35:11, 1298.08s/it]Best trial: 0. Best value: 54.6564:  10%|█         | 5/50 [2:45:21<28:15:48, 2261.08s/it]D:\DownLoad\python\Lib\site-packages\torch\nn\modules\rnn.py:990: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2366877043968936 and num_layers=1
-  super().__init__("LSTM", *args, **kwargs)
