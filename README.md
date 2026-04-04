@@ -116,7 +116,7 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 | MSE | 0.33304 | 0.33305 | 损失 **0.01%** |
 | 特征工程 | 1个原始特征 | 11个工程特征 | 滚动统计+差分+时间 |
 
-### 节能决策模块
+### 节能决策模块（最新成果）
 
 | 模块 | 成果 | 文件/路径 | 状态 |
 |:---|:---|:---|:---:|
@@ -124,12 +124,31 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 | | 动态阈值（时段+节假日） | `decision/config/thresholds_dynamic.json` | ✅ 已生成 |
 | | 年度电价/碳排（备用） | `decision/config/eurostat_prices.csv`<br>`decision/config/spanish_carbon_intensity.csv` | ✅ 已生成 |
 | | 基础分位数阈值（年度） | `decision/config/thresholds.json` | ✅ 已生成 |
-| **决策脚本** | 统一决策引擎（支持1天/7天窗口） | `decision/scripts/run_decision.py` | ✅ 已开发 |
-| | 节点参数生成脚本 | `decision/scripts/generate_node_weighted_params_monthly.py` | ✅ 已执行 |
-| | 电价/碳排提取脚本 | `decision/scripts/extract_eurostat_prices_v2.py` | ✅ 已开发 |
-| **预训练** | 41节点7天窗口预训练（优化版） | `versions/v2_holiday_sector/train_federated_pretrain.py` | 🔄 进行中（5节点验证） |
-| **微调** | 7天窗口微调（优化版） | `versions/v2_holiday_sector/train_federated_finetune_optimized.py` | ✅ 已开发 |
-| **决策输出** | 节能量化结果（CSV/JSON）及图表 | `decision/outputs/`（待生成） | ⏳ 模型完成后运行 |
+| | 高峰时段（数据挖掘） | `decision/config/peak_hours.json` | ✅ 已生成 |
+| **决策脚本** | 统一决策引擎（Phase 1） | `decision/scripts/run_decision.py` | ✅ 已完成 |
+| | 成本敏感+MC Dropout（Phase 2） | `decision/scripts/run_decision_phase2.py` | ✅ 已完成 |
+| | 动态阈值自适应（Phase 3） | `decision/scripts/run_decision_phase3.py` | ✅ 已完成 |
+| | 集成学习（Phase 1+2） | `decision/scripts/ensemble_phase1_phase2_final.py` | ✅ 已完成 |
+| **微调模型** | 原始微调（41节点） | `results/finetune/models/node_*.pth` | ✅ 已完成 |
+| | 二次微调（38节点） | `results/finetune_secondary/models/node_*.pth` | ✅ 已完成 |
+| | 最终最佳模型分配表 | `results/final_comparison.csv` | ✅ 已完成 |
+| **决策输出** | Phase 1 结果 | `decision/outputs/decision_results_7day_all.csv` | ✅ 已完成 |
+| | Phase 2 结果 | `decision/outputs/decision_results_7day_all_phase2.csv` | ✅ 已完成 |
+| | Phase 3 结果 | `decision/outputs/decision_results_7day_all_phase3.csv` | ✅ 已完成 |
+| | 集成学习结果 | `decision/ensemble_outputs/` | ✅ 已完成 |
+| **可视化图表** | 累计节能曲线、节点成本柱状图等 | `decision/outputs/*.png` | ✅ 已完成 |
+| | 集成学习对比图、节点/小时准确率 | `decision/ensemble_outputs/*.png` | ✅ 已完成 |
+
+#### 决策引擎四阶段对比
+
+| 方案 | 准确率 | 总节能 (kWh) | 总成本 (€) | 总碳减排 (kg) |
+|:---|:---:|:---:|:---:|:---:|
+| Phase 1 (阈值基线) | 77.75% | 249.34M | 17.14M | 39.47M |
+| Phase 2 (成本敏感+MC Dropout) | 77.45% | **258.08M** | **17.74M** | **40.86M** |
+| Phase 3 (动态阈值) | 78.82% | 238.12M | 16.37M | 37.70M |
+| **集成学习 (元学习器)** | **80.53%** | ~258M | ~17.7M | ~40.9M |
+
+> 集成学习决策准确率 80.53%，显著优于单一策略，同时保持高节能效果。
 
 ---
 
@@ -154,6 +173,27 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 ### 5. 树莓派手机仪表盘
 ![手机仪表盘](results/raspberry_prediction_20260319_131514.png)
 *Flask后端 + ECharts前端，实时监控6小时预测*
+
+### 6. 决策引擎可视化（部分）
+#### 累计节能曲线
+![累计节能](decision/outputs/cumulative_energy_7day_all.png)
+*Phase 1 累计节省能耗曲线*
+
+#### 集成学习准确率对比
+![集成学习准确率](decision/ensemble_outputs/ensemble_accuracy_comparison.png)
+*5种集成策略滚动验证准确率对比（元学习器最优 80.53%）*
+
+#### 节点准确率分布
+![节点准确率](decision/ensemble_outputs/Meta-Learner_node_accuracy.png)
+*各节点决策准确率（平均约80%，最高>95%）*
+
+#### 小时准确率分布
+![小时准确率](decision/ensemble_outputs/Meta-Learner_hour_accuracy.png)
+*24小时准确率曲线（凌晨时段较低，白天较高）*
+
+#### 高峰时段挖掘
+![高峰时段](decision/ensemble_outputs/hourly_energy.png)
+*从训练数据挖掘的高峰时段（凌晨2-3点能耗最高）*
 
 ---
 
@@ -200,10 +240,10 @@ hidden_dim=192, lr=0.002, dropout=0.45, batch_size=48
 beiyou_c_project/
 ├── decision/                              # 决策模块
 │   ├── config/                            # 决策配置文件
-│   ├── scripts/                           # 决策脚本
-│   ├── models/                            # 存放微调模型（待生成）
-│   ├── outputs/                           # 决策结果（待生成）
-│   └── data/                              # 原始电价数据备份
+│   ├── scripts/                           # 决策脚本（Phase 1-3, 集成学习）
+│   ├── outputs/                           # 决策结果 CSV/JSON/PNG
+│   ├── ensemble_outputs/                  # 集成学习输出
+│   └── logs/                              # 运行日志
 ├── data/processed/                        # 预处理数据
 │   ├── barcelona_ready_v1/                # 旧口径数据（2019-2022）
 │   ├── barcelona_ready_2023_2025/         # 新口径数据（2023-2025）
@@ -212,10 +252,11 @@ beiyou_c_project/
 │   ├── figures/                           # SHAP分析图表
 │   ├── shap_arrays/                       # SHAP数组
 │   ├── reports/                           # 综合报告
-│   └── two_stage/                         # 预训练/微调日志与模型
+│   ├── finetune/                          # 原始微调模型
+│   ├── finetune_secondary/                # 二次微调模型
+│   └── two_stage/                         # 预训练/微调日志
 ├── versions/v2_holiday_sector/            # 主要工作区
-│   ├── train_federated_pretrain.py        # 七天窗口预训练（优化版）
-│   ├── train_sliding_learnable_hour.py    # 可学习时段预训练
+│   ├── train_federated_pretrain.py        # 七天窗口预训练
 │   ├── train_federated_finetune_optimized.py  # 微调脚本
 │   ├── shap_window_comparison_optimized.py    # SHAP窗口分析
 │   ├── comprehensive_final.py                 # 综合SHAP分析
@@ -246,7 +287,7 @@ python comprehensive_final.py \
     --nodes 8001,8002,8004,8006,8012 \
     --one_day_smape 36.18 \
     --seven_day_smape 31.82 \
-    --replot   # 若已有 SHAP 数组，可快速重绘
+    --replot
 
 # 5. 联邦学习（24节点）
 python train_federated_optuna_pro_final.py --config configs/federated_v1_24nodes_optimized.json
@@ -254,17 +295,25 @@ python train_federated_optuna_pro_final.py --config configs/federated_v1_24nodes
 # 6. 贝叶斯优化
 python experiments/beautified/bayes_pro.py --trials 20
 
-# 7. 一天窗口训练（可选）
-python train_federated_pretrain_1day.py
-python train_federated_finetune_1day.py
+# 7. 决策引擎运行（Phase 1）
+python decision/scripts/run_decision.py --window 7day --mode all
 
-# 8. 手机部署
+# 8. Phase 2（成本敏感+MC Dropout）
+python decision/scripts/run_decision_phase2.py --window 7day --mode all
+
+# 9. Phase 3（动态阈值）
+python decision/scripts/run_decision_phase3.py --window 7day --mode all
+
+# 10. 集成学习评估
+python decision/scripts/ensemble_phase1_phase2_final.py
+
+# 11. 手机部署
 ./tools/platform-tools/adb.exe push models/ /sdcard/
 
-# 9. 树莓派推理
+# 12. 树莓派推理
 cd experiments && python raspberry_inference.py
 
-# 10. 手机仪表盘
+# 13. 手机仪表盘
 python experiments/mobile_dashboard/app.py
 # 访问: http://127.0.0.1:5000
 ```
@@ -327,10 +376,10 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 
 | 优先级 | 任务 | 预期成果 | 状态 |
 |:---:|:---|:---|:---:|
-| P0 | 完成5节点可学习时段验证 | 确定最优预训练结构 | 🔄 进行中（第2轮已优于基线） |
+| P0 | 完成5节点可学习时段验证 | 确定最优预训练结构 | ✅ 已完成（可学习时段优于基线） |
 | P0 | 全量42节点预训练（可学习时段） | 预训练模型 `results/two_stage/model_fed_pretrain.pth` | 📋 待启动 |
-| P0 | 运行优化微调 | 微调模型 `decision/models/model_fed_finetune.pth` | 📋 预训练后执行 |
-| P0 | 运行决策脚本 | 节能量化结果（CSV/JSON）及图表 | 📋 模型完成后 |
+| P0 | 运行优化微调 | 微调模型 `decision/models/model_fed_finetune.pth` | ✅ 已完成（原始+二次微调） |
+| P0 | 运行决策脚本 | 节能量化结果（CSV/JSON）及图表 | ✅ 已完成（Phase 1-3 + 集成学习） |
 | P1 | Streamlit 交互式仪表盘 | 动态展示预测与决策 | 📋 可选 |
 | P2 | 概念漂移检测（ADWIN） | 增强模型自适应能力 | 📋 可选创新点 |
 
@@ -352,4 +401,5 @@ Loss_local = MSE(y_pred, y_true) + (μ/2) * ||w - w_global||²
 - [Day 19: 五节点七日窗口实验完成 + 正负向综合分析](docs/daily_logs/2026-03-28-29_day19.md)
 - [Day 20-21: 决策模块全面构建与优化](docs/daily_logs/2026-03-30-31_day20-21.md)
 - [Day 22-23: 预训练超参数调优与可学习时段验证](docs/daily_logs/2026-04-01-02_day22-23.md)
+- [Day 24-25: 联邦微调、决策引擎与集成学习全流程](docs/daily_logs/2026-04-03-04_day24-25.md)
 ```
