@@ -1,0 +1,15 @@
+{
+  "window": "7day",
+  "mode": "all",
+  "total_energy_saved_kwh": 249340245.33801213,
+  "total_cost_saved_eur": 17141963.043283656,
+  "total_carbon_saved_kg": 39470025.29209769,
+  "decision_accuracy_percent": 77.75131781015233,
+  "avg_confidence": 0.7649211464934169,
+  "avg_latency_ms": 0.7014431247070728,
+  "num_samples": 192744,
+  "num_nodes": 41,
+  "time_processed": "2026-04-04 02:08:12",
+  "sleep_factor": 0.05,
+  "migrate_factor": 0.8
+}

@@ -1,0 +1,16 @@
+{
+  "phase": "Phase 2 (Cost-Sensitive + MC Dropout + Calibrated Confidence)",
+  "window": "7day",
+  "mode": "all",
+  "total_energy_saved_kwh": 675919245.0756311,
+  "total_cost_saved_eur": 46470709.25806971,
+  "total_carbon_saved_kg": 106910083.11020543,
+  "decision_accuracy_percent": 79.04214917195867,
+  "avg_raw_confidence": 0.9028500943230584,
+  "avg_calibrated_confidence": 0.8001211119887021,
+  "avg_latency_ms": 2.075635950963049e-05,
+  "num_samples": 192744,
+  "num_nodes": 41,
+  "time_processed": "2026-04-05 15:24:40",
+  "mc_forward_passes": 30
+}

@@ -1,0 +1,17 @@
+{
+  "phase": "Phase 3 (Node-Isolated Dynamic Threshold + Cost-Sensitive + MC Dropout)",
+  "window": "7day",
+  "mode": "all",
+  "dynamic_threshold_enabled": true,
+  "window_days": 3,
+  "update_interval": 1000,
+  "total_energy_saved_kwh": 238120495.80266356,
+  "total_cost_saved_eur": 16369102.934595749,
+  "total_carbon_saved_kg": 37702388.48528564,
+  "decision_accuracy_percent": 78.82061179595733,
+  "avg_latency_ms": 0.0,
+  "num_samples": 192744,
+  "num_nodes": 41,
+  "time_processed": "2026-04-04 15:18:37",
+  "mc_forward_passes": 30
+}
