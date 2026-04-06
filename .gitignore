@@ -1,57 +1,121 @@
-# 数据文件
+# ============================================
+# Python 缓存
+# ============================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+.Python
+
+# ============================================
+# 数据文件（太大，不应提交）
+# ============================================
 data/
 fl_data/
 *.csv
 *.xlsx
+*.xls
 *.pkl
-*.npy
-
-# 模型权重
-*.pth
-*.pt
-*.h5
-*.onnx
-
-# 日志和输出
-*.log
-*.txt
-*.json
-*.db
-*.html
-*.png
-*.jpg
-*.gif
 *.pickle
 *.npy
+*.npz
+*.h5
+*.hdf5
+*.zip
+*.tar
+*.gz
+*.7z
 
-# 备份和临时目录
-backup_*/
-decision/analysis_outputs/
-decision/ensemble_outputs/
+# ============================================
+# 模型权重（太大，不应提交）
+# ============================================
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.pb
+*.h5
+
+# ============================================
+# 日志文件（临时，不应提交）
+# ============================================
+*.log
+*.tmp
+*.bak
+*.bak2
+*.swp
+*.swo
+
+# ============================================
+# 决策输出（太大，不应提交）
+# ============================================
 decision/outputs/
+decision/ensemble_outputs/
+decision/ensemble_triple/
+decision/ensemble_triple_complete/
+decision/analysis_outputs/
 decision/models/
+decision/*.pth
+
+# ============================================
+# 实验结果（太大，不应提交）
+# ============================================
 results/
-__pycache__/
-*.pyc
-*.pyo
+backup_*/
+checkpoints/
+logs/
+temp_*/
+temp_netdata/
 
-# 实验脚本输出
-experiments/*/__pycache__/
-versions/v2_holiday_sector/__pycache__/
-
-# 环境
+# ============================================
+# 配置文件（敏感或临时）
+# ============================================
+configs/best_params.yaml
+configs/early_stop_params.yaml
 .env
+.venv
 venv/
-.venv/
 ENV/
 env/
 
-# IDE
+# ============================================
+# IDE 和编辑器
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
+*~
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ============================================
+# Jupyter Notebook
+# ============================================
+.ipynb_checkpoints/
+*.ipynb
+
+# ============================================
+# 测试和覆盖率
+# ============================================
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ============================================
+# 临时图片（只保留关键图片）
+# ============================================
+# 注意：保留 results/beautified/ 中的关键图片
+# 但忽略临时生成的大量图片
+results/beautified/temp_*.png
+results/beautified/*_old.png
+results/old/
+
+# ============================================
+# 其他临时文件
+# ============================================
+*.pid
+*.seed
+*.lock

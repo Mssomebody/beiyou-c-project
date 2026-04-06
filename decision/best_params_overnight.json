@@ -1,0 +1,16 @@
+{
+  "cost_matrix.high.Normal": 16,
+  "cost_matrix.low.Normal": 3,
+  "cost_matrix.high.Migration": 4,
+  "cost_matrix.medium.Sleep": 48,
+  "cost_matrix.medium.Normal": 0,
+  "cost_matrix.medium.Migration": 14,
+  "cost_matrix.low.Sleep": 5,
+  "cost_matrix.low.Migration": 9,
+  "cost_matrix.high.Sleep": 412,
+  "sleep_factor": 0.13021706976342462,
+  "migrate_factor": 0.6739336834843688,
+  "threshold_multiplier": 0.8803124440374713,
+  "accuracy": 85.47156135414001,
+  "note": "\u57fa\u4e8e\u5254\u96648006,8029,8036\u540e\u768410\u8282\u70b9\u5feb\u901f\u6a21\u5f0f\u627e\u5230\uff0c\u8bf7\u7528\u5168\u91cf\u9a8c\u8bc1\u3002"
+}
