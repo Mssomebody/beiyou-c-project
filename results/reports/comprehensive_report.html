@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprehensive Report | Positive & Negative Highlights</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #f5f7fa; margin: 0; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px; overflow: hidden; }
+        .card-header { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 20px 30px; }
+        .card-header h2 { margin: 0; }
+        .card-body { padding: 30px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 25px; margin-bottom: 30px; }
+        .metric-card { background: #f8f9fa; border-radius: 12px; padding: 20px; text-align: center; border-bottom: 4px solid #3498db; }
+        .metric-value { font-size: 2.8rem; font-weight: 700; color: #e67e22; }
+        .improvement-badge { background: #27ae60; color: white; padding: 8px 16px; border-radius: 50px; display: inline-block; margin: 15px 0; }
+        .figure { text-align: center; margin: 30px 0; }
+        .figure img { max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .caption { margin-top: 12px; font-size: 0.9rem; color: #7f8c8d; }
+        .insight { background: #e8f4fd; border-left: 5px solid #3498db; padding: 15px 20px; margin: 20px 0; border-radius: 8px; }
+        .analysis { margin: 20px 0; line-height: 1.6; }
+        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-header"><h2>🔬 Positive Highlight: Why 7-Day Window Outperforms 1-Day?</h2></div>
+        <div class="card-body">
+            <div class="metrics-grid">
+                <div class="metric-card"><div class="metric-label">1-day window sMAPE</div><div class="metric-value">36.18%</div></div>
+                <div class="metric-card"><div class="metric-label">7-day window sMAPE</div><div class="metric-value">31.82%</div></div>
+                <div class="metric-card"><div class="metric-label">Absolute Improvement</div><div class="metric-value">4.36%</div></div>
+                <div class="metric-card"><div class="metric-label">Relative Improvement</div><div class="metric-value">12.1%</div></div>
+            </div>
+            <div class="insight">
+                <strong>💡 Key Finding:</strong> In 5-node federated learning experiments, the 7-day window achieves significantly better accuracy (sMAPE = 31.82%) than the 1-day window (sMAPE = 36.18%), an absolute improvement of 4.36 percentage points.
+            </div>
+            <div class="analysis">
+                <strong>📊 SHAP Explainability Analysis Reveals:</strong><br>
+                From the <strong>Multi-Node Time-Step Importance Boxplot</strong> (Figure 2), the first 4 time steps (Day 1) have substantially higher SHAP values across all nodes, indicating that the most recent day contributes most to the prediction.<br>
+                The <strong>Daily Importance Heatmap</strong> (Figure 3) aggregates the 28 time steps into 7 days and clearly shows that Day 1 importance is 2–3 times higher than subsequent days, with a sharp decay. This demonstrates that the 7-day window effectively captures weekly patterns (e.g., weekday/weekend differences), whereas the 1-day window only captures intra-day fluctuations.<br>
+                The <strong>Waterfall Plot</strong> (Figure 4) further visualizes the contribution of each time step for a single sample, confirming the dominant role of early steps.
+            </div>
+            <div class="figure"><h3>📈 Window Accuracy Comparison</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/window_comparison.png"><div class="caption">Figure 1: sMAPE comparison between 1-day and 7-day windows (5-node FL).</div></div>
+            <div class="figure"><h3>📊 Multi-Node Time-Step Importance Distribution (Baseline)</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/baseline_multi_node_boxplot.png"><div class="caption">Figure 2: SHAP importance distribution across all nodes; first 4 steps (Day 1) are significantly higher.</div></div>
+            <div class="figure"><h3>🔥 Daily Importance Heatmap (Baseline)</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/baseline_multi_node_daily_heatmap.png"><div class="caption">Figure 3: Average daily SHAP importance per node; Day 1 dominates.</div></div>
+            <div class="figure"><h3>💧 Waterfall Plot (Node 8001)</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/baseline_waterfall.png"><div class="caption">Figure 4: SHAP contribution breakdown for one sample.</div></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h2>📉 Negative Highlight: Optimization Methods Fail on 7-Day Window</h2></div>
+        <div class="card-body">
+            <div class="insight">
+                <strong>🔍 Key Finding:</strong> All optimization methods (E3 fusion, E4 knowledge transfer, E5 learnable weights, E2 node weighting) produce higher sMAPE than the baseline (31.82%) on the 7-day window, indicating they introduce noise rather than improving accuracy.
+            </div>
+            <div class="analysis">
+                <strong>Reasons for Ineffectiveness:</strong><br>
+                <ul>
+                    <li><strong>E3 (Granularity Fusion)</strong>: Tsinghua fine-grained data (30-min → 6-hour) captures only 1-day patterns, which mismatches the weekly patterns needed for 7-day prediction. sMAPE rises to 39.25%.</li>
+                    <li><strong>E4 (Knowledge Transfer with Temporal Weights)</strong>: Simple repetition of the 4-slot SHAP weights over 7 days destroys the weekly variation. sMAPE = 37.93%.</li>
+                    <li><strong>E5 (Learnable Temporal Weights)</strong>: Only 4 learnable parameters cannot model the complex 28-step pattern; sMAPE = 39.62%.</li>
+                    <li><strong>E2 (Node Weighting)</strong>: Global average weights among node types are nearly identical (industrial: 0.00728, commercial: 0.00807, residential: 0.00787), making weighting effectively uniform. sMAPE = 39.25%.</li>
+                </ul>
+            </div>
+            <div class="figure"><h3>📊 Optimization Methods sMAPE Comparison</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures/7day_negative_experiments.png"><div class="caption">Figure 5: All optimization methods underperform the baseline.</div></div>
+
+            <div class="figure"><h3>📊 E3 Multi-Node Time-Step Importance</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E3_multi_node_boxplot.png"><div class="caption">E3 SHAP importance distribution; no clear Day-1 dominance indicates noise introduced.</div></div>
+            <div class="figure"><h3>🔥 E3 Daily Importance Heatmap</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E3_multi_node_daily_heatmap.png"><div class="caption">E3 fails to capture weekly patterns effectively.</div></div>
+            <div class="figure"><h3>📊 E4 Multi-Node Time-Step Importance</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E4_multi_node_boxplot.png"><div class="caption">E4 SHAP importance distribution; no clear Day-1 dominance indicates noise introduced.</div></div>
+            <div class="figure"><h3>🔥 E4 Daily Importance Heatmap</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E4_multi_node_daily_heatmap.png"><div class="caption">E4 fails to capture weekly patterns effectively.</div></div>
+            <div class="figure"><h3>📊 E5 Multi-Node Time-Step Importance</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E5_multi_node_boxplot.png"><div class="caption">E5 SHAP importance distribution; no clear Day-1 dominance indicates noise introduced.</div></div>
+            <div class="figure"><h3>🔥 E5 Daily Importance Heatmap</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E5_multi_node_daily_heatmap.png"><div class="caption">E5 fails to capture weekly patterns effectively.</div></div>
+            <div class="figure"><h3>📊 E2 Multi-Node Time-Step Importance</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E2_multi_node_boxplot.png"><div class="caption">E2 SHAP importance distribution; no clear Day-1 dominance indicates noise introduced.</div></div>
+            <div class="figure"><h3>🔥 E2 Daily Importance Heatmap</h3><img src="file:///D:\Desk\desk\beiyou_c_project\results\figures\E2_multi_node_daily_heatmap.png"><div class="caption">E2 fails to capture weekly patterns effectively.</div></div>
+            <div class="insight">
+                <strong>📌 Conclusion:</strong> While some optimization methods marginally improved 1-day window performance (e.g., E4 from 28.45% to 27.82%), they are ineffective on the 7-day window. This demonstrates that the 7-day window itself is already near the data information limit, and simple baseline suffices. Therefore, the 7-day window should be the preferred choice in practice.
+            </div>
+        </div>
+    </div>
+    <footer>Report generated: 2026-03-30 15:21:50<br>Nodes: 8001, 8002, 8004, 8006, 8012 | SHAP: KernelExplainer | Federated learning: FedProx (μ=0.05, 10 rounds)</footer>
+</div>
+</body>
+</html>
